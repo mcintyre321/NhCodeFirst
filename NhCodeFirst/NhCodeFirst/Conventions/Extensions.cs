@@ -13,6 +13,14 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
         {
             return s.Substring(0, 1).ToUpper() + s.Substring(1);
         }
+        public static string StripUnderscores(this string s)
+        {
+            return s.Trim('_');
+        }
+        public static string Sanitise(this string s)
+        {
+            return s.StripUnderscores().Capitalise();
+        }
         public static bool IsNullableType(this Type theType)
         {
             return (theType.IsGenericType && theType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)));

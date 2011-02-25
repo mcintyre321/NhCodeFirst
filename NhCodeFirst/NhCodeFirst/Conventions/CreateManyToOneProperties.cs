@@ -7,7 +7,7 @@ using urn.nhibernate.mapping.Item2.Item2;
 
 namespace NhCodeFirst.NhCodeFirst.Conventions
 {
-    public class CreateManyToOneProperties : IClassConvention, IRunAfter<CreateHiloIdIfTypeHasIntId>, IRunAfter<AddVersion>
+    public class CreateManyToOneProperties : IClassConvention, IRunAfter<CreateNonCompositeIdentity>, IRunAfter<AddVersion>
     {
         private IEnumerable<Type> setTypes = new[] {typeof (ISet<>), typeof (Iesi.Collections.Generic.ISet<>)};
 
@@ -19,8 +19,8 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 var columnName = GetColumnName(memberInfo);
                 @class.manytoone.Add(new manytoone()
                 {
-                    name = memberInfo.Name.Capitalise(),
-                    column1 = columnName.Capitalise(),
+                    name = memberInfo.Name.Sanitise(),
+                    column1 = columnName.Sanitise(),
                     access = memberInfo.Access(),
                     
                 });
@@ -34,8 +34,15 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 
                 if (potentialReciprocalProperties.Count() > 1)
                 {
-                    throw new Exception("Meow! There is more than 1 collection that might be the inverse!");
+                    var att =memberInfo.GetCustomAttributes(typeof (ManyToOneHintAttribute), false).SingleOrDefault() as ManyToOneHintAttribute;
+                    if (att != null)
+                    {
+                        potentialReciprocalProperties =
+                            potentialReciprocalProperties.Where(p => p.Name == att.CorrespondingCollectionName);
+                    }
                 }
+                if (potentialReciprocalProperties.Count() > 1)
+                    throw new Exception("Meow! There is more than 1 collection that might be the inverse! You may need to add a ManyToOneHintAttribute so we know which one to use");
                 if (potentialReciprocalProperties.Count() == 1)
                 {
                     var otherProp = potentialReciprocalProperties.Single();
@@ -49,12 +56,12 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                             access = otherProp.Access(),
                             key = new key()
                             {
-                                column1 = columnName, 
+                                column1 = new column { name = columnName },
                                 notnull = true,
-                                foreignkey="FK_" + memberInfo.Name + "_to_" + otherProp.Name,
+                                foreignkey = "FK_" + memberInfo.Name + "_to_" + otherProp.Name,
                             },
                             inverse = true,
-                            onetomany = new onetomany(){@class = type.AssemblyQualifiedName},
+                            onetomany = new onetomany() { @class = type.AssemblyQualifiedName },
                             cascade = "all"
                         });
                     }
@@ -71,6 +78,15 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 columnName = memberInfo.Name.Replace(propName, "") + "_" + columnName; //...we end up with a column called Creator_UserId
             }
             return columnName;
+        }
+    }
+    class ManyToOneHintAttribute:Attribute
+    {
+        public string CorrespondingCollectionName { get; private set; }
+
+        public ManyToOneHintAttribute(string correspondingPropertyName)
+        {
+            CorrespondingCollectionName = correspondingPropertyName;
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using NHibernate;
 using NHibernate.Linq;
+using NHibernate.Tool.hbm2ddl;
 using Configuration = NHibernate.Cfg.Configuration;
 
 namespace NhCodeFirst.NhCodeFirst
@@ -15,59 +16,55 @@ namespace NhCodeFirst.NhCodeFirst
     //EF users get started
     abstract class DbContext : IDisposable
     {
+        internal enum DbOption
+        {
+            DropAndRecreate,
+            UpdateSchema
+        }
         private static ISessionFactory _sessionFactory;
         private static Configuration _configuration;
+        private static IEnumerable<MemberInfo> _entityMembers;
 
         public ISession Session { get; private set; }
-        public DbContext():this(null)
-        {
-            
-        }
-        public DbContext(string connectionString)
+        
+        public DbContext(string connectionString, DbOption dbOption)
         {
             if (_sessionFactory == null)
-            {
+            {                
                 var cb = new ConfigurationBuilder();
 
-                var entityTypes =
-                    from member in this.GetType().GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)
-                    where typeof (DbSetBase).IsAssignableFrom(member.ReturnType())
-                    let genericParameterType = member.ReturnType().GetGenericArguments().Single()
-                    select genericParameterType;
-                connectionString = connectionString ?? ConfigurationManager.ConnectionStrings[GetType().Name].ConnectionString;
+                var entityTypes = this.GetEntityTypes();
+                //build the configuration builder, using the types from all the IQueryables we found
                 _configuration = cb.Build(connectionString, entityTypes);
+
+                CreateOrUpdateDatabaseAndSchema(connectionString, dbOption);
+
                 _sessionFactory = _configuration.BuildSessionFactory();
             }
             Session = _sessionFactory.OpenSession();
         }
 
+        private void CreateOrUpdateDatabaseAndSchema(string connectionString, DbOption dbOption)
+        {
+            var dbInit = new DatabaseInitializer(connectionString);
+            if (dbOption == DbOption.DropAndRecreate || !dbInit.Exists())
+            {
+                dbInit.Drop();
+                dbInit.Create();
+                new SchemaExport(_configuration).Execute(true, true, false);
+            }
+            else
+            {
+                //attempt to update the schema
+                new SchemaUpdate(_configuration).Execute(true, true);
+            }
+        }
+
+        public abstract IEnumerable<Type> GetEntityTypes();
+
         public void Dispose()
         {
             Session.Dispose();
-        }
-    }
-
-    internal class DbSetBase
-    {
-    }
-
-    class DbSet<TEntity> : DbSetBase where TEntity : class
-    {
-        private readonly ISession _session;
-
-        public DbSet(ISession session)
-        {
-            _session = session;
-        }
-         
-        public void Add(TEntity item)
-        {
-            _session.SaveOrUpdate(item);
-        } 
-
-        public IQueryable<TEntity> Count
-        {
-            get { throw new NotImplementedException(); }
         }
     }
 }

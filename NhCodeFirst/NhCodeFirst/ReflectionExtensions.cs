@@ -15,9 +15,33 @@ namespace NhCodeFirst.NhCodeFirst
         }
 
         public static BindingFlags BindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+        public static IEnumerable<MemberInfo> GetFieldsAndProperties(this Type type)
+        {
+            return
+                type.GetAllMembers().Where(
+                    m => m.MemberType == MemberTypes.Field || m.MemberType == MemberTypes.Property);
+        }
         public static IEnumerable<MemberInfo> GetAllMembers(this Type type)
         {
             return type.GetMembers(BindingFlags).Where(p => p.IsBackingField() == false);
+        }
+
+        public static void SetValue(this MemberInfo memberInfo, object obj, object value)
+        {
+            if (memberInfo.MemberType == MemberTypes.Property)
+            {
+                var propertyInfo = memberInfo.DeclaringType.GetProperty(memberInfo.Name,
+                                                                        BindingFlags.NonPublic | BindingFlags.Public |
+                                                                        BindingFlags.Instance | BindingFlags.Static);
+                propertyInfo.GetSetMethod().Invoke(obj, new object[] { value });
+            }
+            else if (memberInfo.MemberType == MemberTypes.Field)
+            {
+                var fieldInfo = memberInfo.DeclaringType.GetField(memberInfo.Name,
+                                                                       BindingFlags.NonPublic | BindingFlags.Public |
+                                                                       BindingFlags.Instance | BindingFlags.Static);
+                fieldInfo.SetValue(obj, value);
+            }
         }
 
         public static IEnumerable<Type> MakeGenericTypes(this IEnumerable<Type> openGenerics, Type type)

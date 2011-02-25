@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{2D2F70D2-17F6-4AC6-8A38-FC61CE585C0E}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NhCodeFirst</RootNamespace>
     <AssemblyName>NhCodeFirst</AssemblyName>
@@ -29,6 +29,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>NhCodeFirst.ExampleDomain.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Antlr3.Runtime">
@@ -70,13 +73,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExampleDomain\ProductsDb.cs" />
-    <Compile Include="NhCodeFirst\DatabaseDropperAndRecreator.cs" />
+    <Compile Include="ExampleDomain\PhotoGallery.cs" />
+    <Compile Include="ExampleDomain\Friendship.cs" />
+    <Compile Include="ExampleDomain\SocialNetworkDb.cs" />
+    <Compile Include="ExampleDomain\User.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="NhCodeFirst\DatabaseInitializer.cs" />
     <Compile Include="NhCodeFirst\ConfigurationBuilder.cs" />
     <Compile Include="NhCodeFirst\Conventions\AddVersion.cs" />
     <Compile Include="NhCodeFirst\Conventions\CreateBasicProperties.cs" />
     <Compile Include="NhCodeFirst\Conventions\CreateComponentMappedProperties.cs" />
-    <Compile Include="NhCodeFirst\Conventions\CreateHiloIdIfTypeHasIntIdProperty.cs" />
+    <Compile Include="NhCodeFirst\Conventions\CreateNonCompositeIdentity.cs" />
     <Compile Include="NhCodeFirst\Conventions\CreateManyToOneProperties.cs" />
     <Compile Include="NhCodeFirst\Conventions\Extensions.cs" />
     <Compile Include="NhCodeFirst\Conventions\IClassConvention.cs" />

@@ -7,7 +7,7 @@ using urn.nhibernate.mapping.Item2.Item2;
 
 namespace NhCodeFirst.NhCodeFirst.Conventions
 {
-    public class CreateComponentMappedProperties : IClassConvention, IRunAfter<CreateHiloIdIfTypeHasIntId>, IRunAfter<AddVersion>
+    public class CreateComponentMappedProperties : IClassConvention, IRunAfter<CreateNonCompositeIdentity>, IRunAfter<AddVersion>
     {
 
         public void Apply(Type type, @class @class, IEnumerable<Type> entityTypes, hibernatemapping mapping)
