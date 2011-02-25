@@ -23,7 +23,6 @@ namespace NhCodeFirst.NhCodeFirst
         }
         private static ISessionFactory _sessionFactory;
         private static Configuration _configuration;
-        private static IEnumerable<MemberInfo> _entityMembers;
 
         public ISession Session { get; private set; }
         

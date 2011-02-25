@@ -11,27 +11,22 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
         public void Apply(Type entityType, @class classElement, IEnumerable<Type> entityTypes, hibernatemapping mapping)
         {
             //use reflection to get the Id property from the current class
-            var idProperty = entityType.GetFieldsAndProperties()
+            var idMember = entityType.GetFieldsAndProperties()
                 .Where(e => e.Name.ToLower() == "id" || e.GetCustomAttributes(typeof(KeyAttribute), false).Any())
                 .SingleOrDefault();
-            if (idProperty != null)
+            if (idMember != null)
             {
-                var idType = idProperty.ReturnType();
+                var idType = idMember.ReturnType();
                 //if the id property exists, add a new id element to the @class element
                 classElement.id = new id() 
                 {
-                    name = idProperty.Name.Sanitise(),
-                    column = { new column() { name = idProperty.Name.Sanitise() } }
+                    name = idMember.Name.Sanitise(),
+                    column = { new column().Setup(idMember) }
                 };
+
                 if (CanUseHiloGenerator(idType)) //if is integer of some kind
                 {
                     classElement.id.generator = new generator() {@class = "hilo"};
-                }
-                if (idType == typeof(string))
-                {
-                    var stringLengthAttribute = idProperty.GetCustomAttributes(true).OfType<StringLengthAttribute>().SingleOrDefault();
-                    string maxLength = stringLengthAttribute == null ? "MAX" : stringLengthAttribute.MaximumLength.ToString();
-                    classElement.id.column.Single().sqltype = "NVARCHAR(" + maxLength + ")";
                 }
             }
         }

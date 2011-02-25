@@ -22,8 +22,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                                         && CreateBasicProperties.BasicTypes.Contains(rt) == false
                                         select mi;
             foreach (var memberInfo in nonEntityClassMembers.Where(m => m.MemberType == MemberTypes.Field || m.MemberType == MemberTypes.Property))
-            {
-                var columnPrefix = GetColumnNamePrefix(memberInfo);
+            {                
                 @class.component.Add(new component()
                 {
                     name =  memberInfo.Name.Capitalise(),

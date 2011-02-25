@@ -25,18 +25,13 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 var property = new property()
                 {
                     name = memberInfo.Name.Capitalise(),
-                    column = { new column() { name = "[" + memberInfo.Name.Sanitise() + "]" } },
+                    column = { new column().Setup(memberInfo)},
                     access = memberInfo.Access(),
                     notnull = !memberInfo.ReturnType().IsNullableType(),
-                    
                 };
                 SetUniqueProperties(memberInfo, property);
 
                 //this if statement could be happily replaced by some nifty lookup table or something
-                if (memberInfo.ReturnType() == typeof(byte[]))
-                {
-                    property.column[0].sqltype = "VARBINARY(MAX)";
-                }
                 if (memberInfo.ReturnType() == typeof(DateTimeOffset) || memberInfo.ReturnType() == typeof(DateTimeOffset?))
                 {
                     property.type1 = "datetimeoffset";
@@ -44,12 +39,6 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 if (memberInfo.ReturnType() == typeof(DateTime) || memberInfo.ReturnType() == typeof(DateTime?))
                 {
                     property.type1 = "UtcDateTime";
-                }
-                if (memberInfo.ReturnType() == typeof(string))
-                {
-                    var stringLengthAttribute = memberInfo.GetCustomAttributes(true).OfType<StringLengthAttribute>().SingleOrDefault();
-                    string maxLength = stringLengthAttribute == null ? "MAX" : stringLengthAttribute.MaximumLength.ToString();
-                    property.column.Single().sqltype = "NVARCHAR(" + maxLength + ")";
                 }
                 if (memberInfo.ReturnType().IsEnum)
                 {
