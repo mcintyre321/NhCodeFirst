@@ -14,9 +14,9 @@ namespace NhCodeFirst.NhCodeFirst
     //This class is similar to the EF DbContext - you don't have to use it to
     //use the ConfigurationBuilder and conventions but it should help some
     //EF users get started
-    abstract class DbContext : IDisposable
+    public abstract class DbContext : IDisposable
     {
-        internal enum DbOption
+        public enum DbOption
         {
             DropAndRecreate,
             UpdateSchema

@@ -6,6 +6,6 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
 {
     public interface IClassConvention
     {
-        void Apply(Type entityType, @class classElement, IEnumerable<Type> entityTypes, hibernatemapping mapping);
+        void Apply(Type entityType, @class classElement, IEnumerable<Type> entityTypes, hibernatemapping hbm);
     }
 }

@@ -1,13 +1,52 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Design.PluralizationServices;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml.Linq;
+using urn.nhibernate.mapping.Item2.Item2;
+using Xml.Schema.Linq;
 
 namespace NhCodeFirst.NhCodeFirst
 {
     public static class Extensions
     {
+        public static T Apply<T>(this T t, Action<T> action)
+        {
+            action(t);
+            return t;
+        }
+
+        public static IEnumerable<T> Each<T>(this IEnumerable<T> collection, Action<T> action) 
+        {
+            foreach (var item in collection)
+            {
+                action(item);
+                yield return item;
+            }
+        }
+
+        public static T Copy<T>(this T t)
+        {
+            var xml = t.ToString();
+            var obj = typeof (T).GetMethod("Parse", BindingFlags.Public | BindingFlags.Static).Invoke(null, new[] {xml});
+            return (T) obj;
+        }
+
+        public static List<T> Copy<T>(this IList<T> list)
+        {
+            var newList = new List<T>();
+            foreach (var l in list)
+            {
+                newList.Add(l.Copy());
+            }
+            return newList;
+        }
+         
+
+
         public static string Pluralize(this string text)
         {
             var service = PluralizationService.CreateService(System.Threading.Thread.CurrentThread.CurrentUICulture);

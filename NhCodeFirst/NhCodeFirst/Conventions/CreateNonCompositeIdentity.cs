@@ -8,7 +8,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
 {
     public class CreateNonCompositeIdentity : IClassConvention
     {
-        public void Apply(Type entityType, @class classElement, IEnumerable<Type> entityTypes, hibernatemapping mapping)
+        public void Apply(Type entityType, @class classElement, IEnumerable<Type> entityTypes, hibernatemapping hbm)
         {
             //use reflection to get the Id property from the current class
             var idMember = entityType.GetFieldsAndProperties()
@@ -21,7 +21,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 classElement.id = new id() 
                 {
                     name = idMember.Name.Sanitise(),
-                    column = { new column().Setup(idMember) }
+                    column = { new column().Setup(idMember).Apply(c => c.notnull = true) }
                 };
 
                 if (CanUseHiloGenerator(idType)) //if is integer of some kind

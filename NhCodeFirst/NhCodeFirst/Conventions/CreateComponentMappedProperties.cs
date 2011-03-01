@@ -10,7 +10,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
     public class CreateComponentMappedProperties : IClassConvention, IRunAfter<CreateNonCompositeIdentity>, IRunAfter<AddVersion>
     {
 
-        public void Apply(Type type, @class @class, IEnumerable<Type> entityTypes, hibernatemapping mapping)
+        public void Apply(Type type, @class @class, IEnumerable<Type> entityTypes, hibernatemapping hbm)
         {
             var classMembers = from mi in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                                   let rt = mi.ReturnType()

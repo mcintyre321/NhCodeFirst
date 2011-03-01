@@ -13,7 +13,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
     {
         public static readonly IList<Type> BasicTypes = new[] { typeof(Guid), typeof(Guid?), typeof(int), typeof(int?), typeof(string), typeof(bool), typeof(bool?), typeof(DateTime), typeof(DateTime?), typeof(DateTimeOffset), typeof(DateTimeOffset?), typeof(Byte[]) }.ToList().AsReadOnly();
 
-        public void Apply(Type type, @class @class, IEnumerable<Type> entityTypes, hibernatemapping mapping)
+        public void Apply(Type type, @class @class, IEnumerable<Type> entityTypes, hibernatemapping hbm)
         {
             var memberInfos = type.GetFieldsAndProperties()
                 .Where(p => p.Name != @class.id.name)
@@ -27,7 +27,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                     name = memberInfo.Name.Capitalise(),
                     column = { new column().Setup(memberInfo)},
                     access = memberInfo.Access(),
-                    notnull = !memberInfo.ReturnType().IsNullableType(),
+                    notnull = !memberInfo.Nullable()
                 };
                 SetUniqueProperties(memberInfo, property);
 

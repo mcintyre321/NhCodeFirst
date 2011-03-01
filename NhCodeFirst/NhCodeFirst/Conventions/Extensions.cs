@@ -11,8 +11,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
     {
         public static column Setup(this column column, MemberInfo memberInfo, string columnName = null)
         {
-            column.name = columnName ?? column.name ?? memberInfo.Name.Sanitise();
-            column.name = '[' + column.name.Trim('[', ']') + ']';
+            column.SetName(columnName ?? column.GetName() ?? memberInfo.Name.Sanitise());
 
             if (memberInfo.ReturnType() == typeof(string))
             {
@@ -24,15 +23,46 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             {
                 column.sqltype = "VARBINARY(MAX)";
             }
-            
+
+            column.notnull = !memberInfo.Nullable();
+
             return column;
+        }
+        public static column SetName(this column column, string name)
+        {
+            column.name = '[' + name.Trim('[', ']') + ']';
+            return column;
+        }
+        public static string GetName(this column column)
+        {
+            return column.name == null ? null : column.name.Trim('[', ']');
         } 
+
     }
     static class Extensions
     {
+        public static @class ClassElement(this Type type, hibernatemapping hbm)
+        {
+            return hbm.@class.SingleOrDefault(c => c.name == type.AssemblyQualifiedName);
+        }
+
         public static string Access(this MemberInfo memberInfo)
         {
             return memberInfo.MemberType == MemberTypes.Field ? "field.camelcase" : null;
+        }
+
+        public static bool Nullable(this MemberInfo memberInfo)
+        {
+            var type = memberInfo.ReturnType();
+            return (type.IsNullableType())
+                   && !type.HasAttribute<RequiredAttribute>()
+                   && !type.HasAttribute<KeyAttribute>()
+                   && !type.HasAttribute<UniqueAttribute>();
+
+        }
+        public static bool HasAttribute<T>(this MemberInfo mi)
+        {
+            return mi.GetCustomAttributes(typeof (T), false).Any();
         }
         public static string Capitalise(this string s)
         {
@@ -46,9 +76,10 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
         {
             return s.StripUnderscores().Capitalise();
         }
-        public static bool IsNullableType(this Type theType)
+
+        private static bool IsNullableType(this Type theType)
         {
-            return (theType.IsGenericType && theType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)));
+            return theType.IsClass || theType.IsInterface || (theType.IsGenericType && theType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)));
         }
     }
 }

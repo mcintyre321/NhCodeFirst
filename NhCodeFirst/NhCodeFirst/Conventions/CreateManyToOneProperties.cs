@@ -11,18 +11,20 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
     {
         private IEnumerable<Type> setTypes = new[] {typeof (ISet<>), typeof (Iesi.Collections.Generic.ISet<>)};
 
-        public void Apply(Type type, @class @class, IEnumerable<Type> entityTypes, hibernatemapping mapping)
-        {
-            var entityMembersOnType = type.GetAllMembers().Where(p => entityTypes.Contains(p.ReturnType())).ToArray();
-            foreach (var memberInfo in entityMembersOnType.Where(m => m.MemberType == MemberTypes.Field || m.MemberType == MemberTypes.Property))
+        public void Apply(Type type, @class @class, IEnumerable<Type> entityTypes, hibernatemapping hbm)
+        {            
+            var entityMembersOnType = type.GetFieldsAndProperties().Where(p => entityTypes.Contains(p.ReturnType())).ToArray();
+            foreach (var memberInfo in entityMembersOnType)
             {
-                var columnName = GetColumnName(memberInfo);
+                var prefix = ColumnNamePrefix(memberInfo);
+                var entityClassElement = memberInfo.ReturnType().ClassElement(hbm);
                 @class.manytoone.Add(new manytoone()
                 {
                     name = memberInfo.Name.Sanitise(),
-                    column = new List<column>{new column().Setup(memberInfo, columnName: columnName)},
+                    column = entityClassElement.id.column.Copy()
+                        .Each(c => c.SetName(prefix + c.GetName()))
+                        .Each(c => c.notnull = memberInfo.Nullable()).ToList(),
                     access = memberInfo.Access(),
-                    
                 });
 
 
@@ -46,7 +48,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 if (potentialCorrespondingCollections.Count() == 1)
                 {
                     var correspondingCollection = potentialCorrespondingCollections.Single();
-                    var otherClassMap = mapping.@class.Single(c => c.name == memberInfo.ReturnType().AssemblyQualifiedName);
+                    var otherClassMap = memberInfo.ReturnType().ClassElement(hbm);
 
                     if (setTypes.MakeGenericTypes(type).Any(t => t.IsAssignableFrom(correspondingCollection.ReturnType())))
                     {
@@ -57,13 +59,14 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                                           access = correspondingCollection.Access(),
                                           key = new key()
                                                     {
-                                                        column = new List<column> { new column().Setup(memberInfo, columnName: columnName) },
-                                                        notnull = true,
+                                                        column = otherClassMap.id.column.Copy(),
                                                         foreignkey = "FK_" + memberInfo.Name + "_to_" + correspondingCollection.Name,
+                                                        notnull = !memberInfo.Nullable()
                                                     },
                                           inverse = true,
                                           onetomany = new onetomany() {@class = type.AssemblyQualifiedName},
-                                          cascade = "all"
+                                          cascade = "all",
+                                          
                                       };
                         otherClassMap.set.Add(set);
                     }
@@ -71,10 +74,10 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             }
         }
 
-        private static string GetColumnName(MemberInfo memberInfo)
+        private static string ColumnNamePrefix(MemberInfo memberInfo)
         {
             var propName = memberInfo.ReturnType().Name.Sanitise(); //suppose we have a property of type User...
-            var columnName = propName + "Id";  //...we write it to a column UserId...
+            var columnName = propName;  //...we write it to a column UserId...
             if (memberInfo.Name != propName) //...but if the property is called something like CreatorUser...
             {
                 columnName = memberInfo.Name.Replace(propName, "") + "_" + columnName; //...we end up with a column called Creator_UserId

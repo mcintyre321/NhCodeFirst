@@ -8,15 +8,14 @@ namespace NhCodeFirst.ExampleDomain
         {
             using (var db = new SocialNetworkDb("server=.;database=SocialNetworkDb;trusted_connection=true", DbContext.DbOption.DropAndRecreate))
             {
-                var user = new User {Email = "mark@thefacebook.com"};
-                db.Session.SaveOrUpdate(user);
+                var yogi = new User {Email = "yogi@jellystone.com"};
+                db.Session.SaveOrUpdate(yogi);
                 db.Session.Flush();
-            }
-            using (var db = new SocialNetworkDb("server=.;database=SocialNetworkDb;trusted_connection=true", DbContext.DbOption.DropAndRecreate))
-            {
-                var user = new User { Email = "mark@thefacebook.com" };
-                db.Session.SaveOrUpdate(user);
+
+                var booboo = new User {Email = "booboo@jellystone.com"};
+                db.Session.SaveOrUpdate(booboo);
                 db.Session.Flush();
+
             }
         }
     }

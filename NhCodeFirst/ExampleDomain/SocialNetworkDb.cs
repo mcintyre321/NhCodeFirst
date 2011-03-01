@@ -4,7 +4,7 @@ using NhCodeFirst.NhCodeFirst;
 
 namespace NhCodeFirst.ExampleDomain
 {
-    class SocialNetworkDb : DbContext
+    public class SocialNetworkDb : DbContext
     {
         public SocialNetworkDb(string connectionString, DbOption dbOption) : base(connectionString, dbOption)
         {
@@ -14,7 +14,9 @@ namespace NhCodeFirst.ExampleDomain
         {
             yield return typeof (User);
             yield return typeof (Friendship);
-            yield return typeof (PhotoGallery);
+            yield return typeof(PhotoGallery);
+            yield return typeof(Photo);
+
         }
     }
 }
