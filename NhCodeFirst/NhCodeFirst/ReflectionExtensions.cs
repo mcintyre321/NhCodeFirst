@@ -60,6 +60,12 @@ namespace NhCodeFirst.NhCodeFirst
                 type.GetAllMembers().Where(
                     m => m.MemberType == MemberTypes.Field || m.MemberType == MemberTypes.Property);
         }
+
+        public static bool IsReadOnlyProperty(this MemberInfo mi)
+        {
+            return mi.MemberType == MemberTypes.Property && 
+                   !mi.DeclaringType.GetProperty(mi.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).CanWrite;
+        }
         public static IEnumerable<MemberInfo> GetAllMembers(this Type type)
         {
             return type.GetMembers(BindingFlags).Where(p => p.IsBackingField() == false);

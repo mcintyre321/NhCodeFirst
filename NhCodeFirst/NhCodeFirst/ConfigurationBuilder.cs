@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Web.Hosting;
 using DependencySort;
 using NhCodeFirst.NhCodeFirst.Conventions;
 using NHibernate.ByteCode.Castle;
@@ -52,6 +54,7 @@ namespace NhCodeFirst.NhCodeFirst
             }
             
             var xml = mappingXDoc.ToString();
+            File.WriteAllText(Path.Combine(HostingEnvironment.ApplicationPhysicalPath, "config.hbm.xml"), xml);
             cfg.AddXml(xml);
             return cfg;
         }

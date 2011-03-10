@@ -12,11 +12,10 @@ namespace NhCodeFirst.ExampleDomain
 
         public override IEnumerable<Type> GetEntityTypes()
         {
-            yield return typeof (User);
-            yield return typeof (Friendship);
+            yield return typeof(User);
+            yield return typeof(Friendship);
             yield return typeof(PhotoGallery);
             yield return typeof(Photo);
-
         }
     }
 }

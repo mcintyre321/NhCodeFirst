@@ -9,9 +9,9 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
 {
     static class ColumnExtensions
     {
-        public static column Setup(this column column, MemberInfo memberInfo, string columnName = null)
+        public static column Setup(this column column, MemberInfo memberInfo, string columnName = null, string columnPrefix = "")
         {
-            column.SetName(columnName ?? column.GetName() ?? memberInfo.Name.Sanitise());
+            column.SetName(columnName ?? column.GetName() ?? memberInfo.Name.Sanitise(), columnPrefix);
 
             if (memberInfo.ReturnType() == typeof(string))
             {
@@ -28,9 +28,9 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
 
             return column;
         }
-        public static column SetName(this column column, string name)
+        public static column SetName(this column column, string name, string columnPrefix = "")
         {
-            column.name = '[' + name.Trim('[', ']') + ']';
+            column.name = '[' + columnPrefix + name.Trim('[', ']') + ']';
             return column;
         }
         public static string GetName(this column column)
