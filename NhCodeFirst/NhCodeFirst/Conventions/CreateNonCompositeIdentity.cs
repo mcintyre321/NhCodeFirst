@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Xml.Linq;
 using urn.nhibernate.mapping.Item2.Item2;
+using Xml.Schema.Linq;
 
 namespace NhCodeFirst.NhCodeFirst.Conventions
 {
@@ -26,7 +28,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
 
                 if (CanUseHiloGenerator(idType)) //if is integer of some kind
                 {
-                    classElement.id.generator = new generator() {@class = "hilo"};
+                    classElement.id.generator = new generator() {@class = "hilo", param= {param.Parse(@"<param name=""max_lo"" xmlns=""urn:nhibernate-mapping-2.2"" >10</param>")}};
                 }
             }
         }

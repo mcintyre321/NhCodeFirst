@@ -17,8 +17,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
         {
             var memberInfos = type.GetFieldsAndProperties()
                 .Where(p => p.Name != @class.id.name)
-                .Where(p => @class.version == null || p.Name != @class.version.name)
-                .Where(p => BasicTypes.Contains(p.ReturnType()) || p.ReturnType().IsEnum);
+                .Where(p => @class.version == null || p.Name != @class.version.name);
             foreach (var memberInfo in memberInfos)
             {
                 var property = GetProperty(memberInfo, @class);
@@ -35,7 +34,8 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
         internal static property GetProperty(MemberInfo memberInfo, string prefix = "")
         {
             if (memberInfo.IsReadOnlyProperty()) return null;
-            
+            if (!(BasicTypes.Contains(memberInfo.ReturnType()) || memberInfo.ReturnType().IsEnum))
+                return null;
             var property = new property()
                                {
                                    name = memberInfo.Name.Capitalise(),
@@ -74,7 +74,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
         }
     }
 
-    internal class UniqueAttribute : Attribute
+    public class UniqueAttribute : Attribute
     {
         public string KeyName { get; private set; }
 

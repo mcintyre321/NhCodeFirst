@@ -22,7 +22,8 @@ namespace NhCodeFirst.NhCodeFirst
             cfg.SetProperty(Environment.ConnectionDriver, "NHibernate.Driver.SqlClientDriver");
             cfg.SetProperty(Environment.ConnectionString, connectionString);
             cfg.SetProperty(Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider");
-            cfg.SetProperty(Environment.ProxyFactoryFactoryClass, typeof(ProxyFactoryFactory).AssemblyQualifiedName);
+            if (NHibernate.Cfg.Environment.BytecodeProvider == null)
+                cfg.SetProperty(Environment.ProxyFactoryFactoryClass, typeof(ProxyFactoryFactory).AssemblyQualifiedName);
 
 
             var mappingXDoc = new hibernatemapping(); //this creates the mapping xml document

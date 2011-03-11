@@ -18,14 +18,15 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             {
                 var prefix = ColumnNamePrefix(memberInfo);
                 var entityClassElement = memberInfo.ReturnType().ClassElement(hbm);
-                @class.manytoone.Add(new manytoone()
-                {
-                    name = memberInfo.Name.Sanitise(),
-                    column = entityClassElement.id.column.Copy()
-                        .Each(c => c.SetName(prefix + c.GetName()))
-                        .Each(c => c.notnull = memberInfo.Nullable()).ToList(),
-                    access = memberInfo.Access(),
-                });
+                var manyToOne = new manytoone()
+                                    {
+                                        name = memberInfo.Name.Sanitise(),
+                                        column = entityClassElement.id.column.Copy()
+                                            .Each(c => c.SetName(prefix + c.GetName()))
+                                            .Each(c => c.notnull = memberInfo.Nullable()).ToList(),
+                                        access = memberInfo.Access(),
+                                    };
+                @class.manytoone.Add(manyToOne);
 
 
                 //if there is a manytoone, there is probably a set on the other object...
@@ -59,16 +60,19 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                                           access = correspondingCollection.Access(),
                                           key = new key()
                                                     {
-                                                        column = otherClassMap.id.column.Copy(),
+                                                        column = manyToOne.column.Copy(),
                                                         foreignkey = "FK_" + memberInfo.Name + "_to_" + correspondingCollection.Name,
-                                                        notnull = !memberInfo.Nullable()
+                                                        notnull = !memberInfo.Nullable(),
+                                                        
+                                                        
                                                     },
-                                          inverse = true,
+                                          inverse = false,
                                           onetomany = new onetomany() {@class = type.AssemblyQualifiedName},
                                           cascade = "all",
                                           
                                       };
                         otherClassMap.set.Add(set);
+                        
                     }
                 }
             }
