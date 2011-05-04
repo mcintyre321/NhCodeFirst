@@ -5,7 +5,6 @@ using System.Linq;
 using System.Web.Hosting;
 using DependencySort;
 using NhCodeFirst.NhCodeFirst.Conventions;
-using NHibernate.ByteCode.Castle;
 using NHibernate.Cfg;
 using urn.nhibernate.mapping.Item2.Item2;
 using Environment = NHibernate.Cfg.Environment;
@@ -22,8 +21,6 @@ namespace NhCodeFirst.NhCodeFirst
             cfg.SetProperty(Environment.ConnectionDriver, "NHibernate.Driver.SqlClientDriver");
             cfg.SetProperty(Environment.ConnectionString, connectionString);
             cfg.SetProperty(Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider");
-            if (NHibernate.Cfg.Environment.BytecodeProvider == null)
-                cfg.SetProperty(Environment.ProxyFactoryFactoryClass, typeof(ProxyFactoryFactory).AssemblyQualifiedName);
 
 
             var mappingXDoc = new hibernatemapping(); //this creates the mapping xml document
@@ -55,7 +52,9 @@ namespace NhCodeFirst.NhCodeFirst
             }
             
             var xml = mappingXDoc.ToString();
+#if DEBUG
             File.WriteAllText(Path.Combine(HostingEnvironment.ApplicationPhysicalPath, "config.hbm.xml"), xml);
+#endif
             cfg.AddXml(xml);
             return cfg;
         }
