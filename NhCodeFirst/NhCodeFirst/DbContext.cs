@@ -29,12 +29,10 @@ namespace NhCodeFirst.NhCodeFirst
         public DbContext(string connectionString, DbOption dbOption)
         {
             if (_sessionFactory == null)
-            {                
-                var cb = new ConfigurationBuilder();
-
-                var entityTypes = this.GetEntityTypes();
-                //build the configuration builder, using the types from all the IQueryables we found
-                _configuration = cb.Build(connectionString, entityTypes);
+            {
+                _configuration = ConfigurationBuilder.New()
+                    .ForSql2008(connectionString)
+                    .MapEntities(GetEntityTypes());
 
                 CreateOrUpdateDatabaseAndSchema(connectionString, dbOption);
 
