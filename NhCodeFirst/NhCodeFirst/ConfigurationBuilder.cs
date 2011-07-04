@@ -21,12 +21,27 @@ namespace NhCodeFirst.NhCodeFirst
 
     public interface IConfigurationNeedingEntities
     {
-        Configuration MapEntities(IEnumerable<Type> rootEntityTypes, bool autodiscover = false);
+        Configuration MapEntities(IEnumerable<Type> rootEntityTypes, MatchEntities matchEntities = null);
         IConfigurationNeedingEntities With(Action<Configuration> transform);
+    }
+
+    public class MatchEntities
+    {
+        public Func<Type, bool> IsEntityMatch { get; private set; }
+
+        protected MatchEntities(Func<Type, bool> isEntityMatch)
+        {
+            IsEntityMatch = isEntityMatch;
+        }
+
+        public static MatchEntities All {get { return new MatchEntities((t) => true); }}
+        public static MatchEntities WithIdProperty {get { return new MatchEntities((t) => t.GetProperty("Id") != null); }}
+
     }
 
     public class ConfigurationBuilder : IConfigurationNeedingEntities, IConfigurationNeedingDialect
     {
+        
         private readonly Configuration _cfg;
         private ConfigurationBuilder()
         {
@@ -70,7 +85,7 @@ namespace NhCodeFirst.NhCodeFirst
         #endregion
 
 
-        IEnumerable<Type> GetEntityTypes(IEnumerable<Type> rootEntityTypes, bool autodiscover)
+        IEnumerable<Type> GetEntityTypes(IEnumerable<Type> rootEntityTypes, MatchEntities matchEntities)
         {
             var entityTypesToBeChecked = new Queue<Type>(rootEntityTypes);
 
@@ -81,9 +96,10 @@ namespace NhCodeFirst.NhCodeFirst
             {
                 var typeToBeChecked = entityTypesToBeChecked.Dequeue();
                 
+                if ((matchEntities ?? MatchEntities.All).IsEntityMatch(typeToBeChecked))
                     entityTypes.Add(typeToBeChecked);
                 
-                if (autodiscover)
+                if (matchEntities != null)
                 {
                     var relatedEntities = typeToBeChecked.GetAllMembers()
                         .Select(m => m.ReturnType())
@@ -94,7 +110,7 @@ namespace NhCodeFirst.NhCodeFirst
 
                     foreach (var e in relatedEntities)
                     {
-                        if (e.GetProperty("Id") != null)
+                        if (matchEntities.IsEntityMatch(e))
                         {
                             if (checkedTypes.Add(e))
                             {
@@ -108,9 +124,9 @@ namespace NhCodeFirst.NhCodeFirst
             return entityTypes;
         }
 
-        public Configuration MapEntities(IEnumerable<Type> rootEntityTypes, bool autodiscover)
+        public Configuration MapEntities(IEnumerable<Type> rootEntityTypes, MatchEntities matchEntities = null)
         {
-            var entityTypes = GetEntityTypes(rootEntityTypes, autodiscover);
+            var entityTypes = GetEntityTypes(rootEntityTypes, matchEntities);
 
             var mappingXDoc = new hibernatemapping(); //this creates the mapping xml document
 
