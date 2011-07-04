@@ -13,7 +13,16 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
 
     public class CreateComponentMappedProperties : IClassConvention, IRunAfter<CreateNonCompositeIdentity>, IRunAfter<AddVersion>
     {
+        private static IList<Func<MemberInfo, bool>> _identificationRules = new List<Func<MemberInfo, bool>>()
+        {
+            mi => mi.HasAttribute<ComponentAttribute>(),
+            mi => mi.ReturnType().HasAttribute<ComponentAttribute>(),
+        };
 
+        public static void AddRuleForIdentifyingComponents(Func<MemberInfo, bool> predicate)
+        {
+            _identificationRules.Add(predicate);
+        }
         public void Apply(Type type, @class @class, IEnumerable<Type> entityTypes, hibernatemapping hbm)
         {
             foreach (var memberInfo in type.GetFieldsAndProperties())
@@ -26,7 +35,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
          
         component GetComponent(MemberInfo mi, string columnPrefix = "")
         {
-            if (!mi.HasAttribute<ComponentAttribute>())
+            if (!_identificationRules.Any(rule => rule(mi)))
                 return null;
             var component = new component() {name = mi.Name.Sanitise()};
             var prefix = columnPrefix + component.name + "_";
