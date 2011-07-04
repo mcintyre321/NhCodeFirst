@@ -21,7 +21,7 @@ namespace NhCodeFirst.NhCodeFirst
 
     public interface IConfigurationNeedingEntities
     {
-        Configuration MapEntities(IEnumerable<Type> rootEntityTypes);
+        Configuration MapEntities(IEnumerable<Type> rootEntityTypes, bool autodiscover = false);
         IConfigurationNeedingEntities With(Action<Configuration> transform);
     }
 
@@ -70,7 +70,7 @@ namespace NhCodeFirst.NhCodeFirst
         #endregion
 
 
-        IEnumerable<Type> GetEntityTypes(IEnumerable<Type> rootEntityTypes)
+        IEnumerable<Type> GetEntityTypes(IEnumerable<Type> rootEntityTypes, bool autodiscover)
         {
             var entityTypesToBeChecked = new Queue<Type>(rootEntityTypes);
 
@@ -80,22 +80,27 @@ namespace NhCodeFirst.NhCodeFirst
             do
             {
                 var typeToBeChecked = entityTypesToBeChecked.Dequeue();
-                if (typeToBeChecked.GetProperty("Id") != null)
-                {
+                
                     entityTypes.Add(typeToBeChecked);
-                }
-                var relatedEntities = typeToBeChecked.GetAllMembers()
-                    .Select(m => m.ReturnType())
-                    .Where(m => m != null)
-                    .Select(t => t.GetTypeOrGenericArgumentTypeForICollection())
-                    .Select(t => t.GetTypeOrGenericArgumentTypeForIQueryable())
-                    .Where(m => m != null);
-
-                foreach (var e in relatedEntities)
+                
+                if (autodiscover)
                 {
-                    if (checkedTypes.Add(e))
+                    var relatedEntities = typeToBeChecked.GetAllMembers()
+                        .Select(m => m.ReturnType())
+                        .Where(m => m != null)
+                        .Select(t => t.GetTypeOrGenericArgumentTypeForICollection())
+                        .Select(t => t.GetTypeOrGenericArgumentTypeForIQueryable())
+                        .Where(m => m != null);
+
+                    foreach (var e in relatedEntities)
                     {
-                        entityTypesToBeChecked.Enqueue(e);
+                        if (e.GetProperty("Id") != null)
+                        {
+                            if (checkedTypes.Add(e))
+                            {
+                                entityTypesToBeChecked.Enqueue(e);
+                            }
+                        }
                     }
                 }
 
@@ -103,9 +108,9 @@ namespace NhCodeFirst.NhCodeFirst
             return entityTypes;
         }
 
-        public Configuration MapEntities(IEnumerable<Type> rootEntityTypes)
+        public Configuration MapEntities(IEnumerable<Type> rootEntityTypes, bool autodiscover)
         {
-            var entityTypes = GetEntityTypes(rootEntityTypes);
+            var entityTypes = GetEntityTypes(rootEntityTypes, autodiscover);
 
             var mappingXDoc = new hibernatemapping(); //this creates the mapping xml document
 
