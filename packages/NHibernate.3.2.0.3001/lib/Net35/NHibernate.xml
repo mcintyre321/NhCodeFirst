@@ -28699,16 +28699,33 @@
             Performs bottom-up analysis to determine which nodes that match a certain predicate
             </summary>
         </member>
-        <member name="T:NHibernate.Linq.Visitors.WhereJoinDetector">
+        <member name="T:NHibernate.Linq.Visitors.PossibleValueSet">
             <summary>
-            The WhereJoinDetector creates the joins for the where clause, including
-            optimizations for inner joins. The algorithms are explained in 
-            the accompanying text file.
+            Represents a possible set of values for a computation.  For example, an expression may
+            be null, it may be a non-null value, or we may even have a constant value that is known
+            precisely.  This class contains operators that know how to combine these values with
+            each other.  This class is intended to be used to provide static analysis of expressions
+            before we hit the database.  As an example for future improvement, we could handle
+            ranges of numeric values.  We can also improve this by handling operators such as the
+            comparison operators and arithmetic operators.  They are currently handled by naive
+            null checks.
             </summary>
         </member>
-        <member name="M:NHibernate.Linq.Visitors.WhereJoinDetector.#cctor">
+        <!-- El comentario XML con formato incorrecto se omite para el miembro "T:NHibernate.Linq.Visitors.WhereJoinDetector" -->
+        <member name="P:NHibernate.Linq.Visitors.WhereJoinDetector.ExpressionValues.Values">
             <summary>
-            Setup of <see cref="F:NHibernate.Linq.Visitors.WhereJoinDetector.AND"/>, <see cref="F:NHibernate.Linq.Visitors.WhereJoinDetector.OR"/>, <see cref="F:NHibernate.Linq.Visitors.WhereJoinDetector.NOT"/>.
+            Possible values of expression if there's set of values for the requested member expression.
+            For example, if we have an expression "3" and we request the state for "a.B.C", we'll
+            use "3" from Values since it won't exist in MemberExpressionValuesIfEmptyOuterJoined.
+            </summary>
+        </member>
+        <member name="P:NHibernate.Linq.Visitors.WhereJoinDetector.ExpressionValues.MemberExpressionValuesIfEmptyOuterJoined">
+            <summary>
+            Stores the possible values of an expression that would result if the given member expression
+            string was emptily outer joined.  For example a.B.C would result in "null" if we try to
+            outer join to B and there are no rows.  Even if an expression tree does contain a particular
+            member experssion, it may not appear in this list.  In that case, the emptily outer joined
+            value set for that member expression will be whatever's in Values instead.
             </summary>
         </member>
         <member name="M:NHibernate.Linq.ReflectionHelper.GetMethodDefinition``1(System.Linq.Expressions.Expression{System.Action{``0}})">
