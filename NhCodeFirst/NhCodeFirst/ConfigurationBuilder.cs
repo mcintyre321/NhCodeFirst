@@ -87,14 +87,14 @@ namespace NhCodeFirst.NhCodeFirst
 
         IEnumerable<Type> GetEntityTypes(IEnumerable<Type> rootEntityTypes, MatchEntities matchEntities)
         {
-            var entityTypesToBeChecked = new Queue<Type>(rootEntityTypes);
+            var typesToBeChecked = new Queue<Type>(rootEntityTypes);
 
             var checkedTypes = new HashSet<Type>();
             var entityTypes = new HashSet<Type>();
 
             do
             {
-                var typeToBeChecked = entityTypesToBeChecked.Dequeue();
+                var typeToBeChecked = typesToBeChecked.Dequeue();
                 
                 if ((matchEntities ?? MatchEntities.All).IsEntityMatch(typeToBeChecked))
                     entityTypes.Add(typeToBeChecked);
@@ -112,15 +112,16 @@ namespace NhCodeFirst.NhCodeFirst
                     {
                         if (matchEntities.IsEntityMatch(e))
                         {
-                            if (checkedTypes.Add(e))
-                            {
-                                entityTypesToBeChecked.Enqueue(e);
-                            }
+                            entityTypes.Add(e);
+                        }
+
+                        if (checkedTypes.Add(e))
+                        {
+                            typesToBeChecked.Enqueue(e);
                         }
                     }
                 }
-
-            } while (entityTypesToBeChecked.Any());
+            } while (typesToBeChecked.Any());
             return entityTypes;
         }
 
