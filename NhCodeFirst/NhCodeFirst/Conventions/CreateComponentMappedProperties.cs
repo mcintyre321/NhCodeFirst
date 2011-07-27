@@ -38,7 +38,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             if (!_identificationRules.Any(rule => rule(mi)))
                 return null;
             var component = new component() { name = mi.Name, access = mi.Access(), };
-            var prefix = columnPrefix + component.name + "_";
+            var prefix = columnPrefix + component.name.Sanitise() + "_";
 
             foreach (var memberInfo in mi.ReturnType().GetFieldsAndProperties())
             {
