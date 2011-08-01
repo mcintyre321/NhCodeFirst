@@ -38,7 +38,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 return null;
             var property = new property()
                                {
-                                   name = memberInfo.Name.Capitalise(),
+                                   name = memberInfo.Name,
                                    column = { new column().Setup(memberInfo, columnPrefix: prefix)},
                                    access = memberInfo.Access(),
                                    notnull = !memberInfo.Nullable()

@@ -48,8 +48,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
 
         public static string Access(this MemberInfo memberInfo)
         {
-
-            var access = memberInfo.MemberType == MemberTypes.Field ? "field.camelcase" : null;
+            var access = memberInfo.MemberType == MemberTypes.Field ? "field" : null;
             //if (memberInfo.Name.StartsWith("_") && access != null) access += "-underscore";
             return access;
         }
