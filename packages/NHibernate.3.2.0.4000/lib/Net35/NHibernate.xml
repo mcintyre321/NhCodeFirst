@@ -341,6 +341,7 @@
             <see cref="T:System.Data.IDataReader"/>s it can have are followed.
             </remarks>
         </member>
+        <!-- El comentario XML con formato incorrecto se omite para el miembro "M:NHibernate.Engine.IBatcher.RemoveUnusedCommandParameters(System.Data.IDbCommand,NHibernate.SqlCommand.SqlString)" -->
         <member name="M:NHibernate.Engine.IBatcher.ExpandQueryParameters(System.Data.IDbCommand,NHibernate.SqlCommand.SqlString)">
             <summary>
             Expand the parameters of the cmd to have a single parameter for each parameter in the
@@ -14673,6 +14674,7 @@
             <param name="sqlType">The SqlType to set for IDbDataParameter.</param>
             <returns>An IDbDataParameter ready to be added to an IDbCommand.</returns>
         </member>
+        <!-- El comentario XML con formato incorrecto se omite para el miembro "M:NHibernate.Driver.IDriver.RemoveUnusedCommandParameters(System.Data.IDbCommand,NHibernate.SqlCommand.SqlString)" -->
         <member name="M:NHibernate.Driver.IDriver.ExpandQueryParameters(System.Data.IDbCommand,NHibernate.SqlCommand.SqlString)">
             <summary>
             Expand the parameters of the cmd to have a single parameter for each parameter in the
@@ -20328,6 +20330,36 @@
             The semantics of this method are defined by JSR-220.
             <param name="entityName">Name of the entity.</param>
             <param name="obj">a detached instance with state to be copied </param>
+            <returns> an updated persistent instance </returns>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:NHibernate.ISession.Merge``1(``0)">
+            <summary>
+            Copy the state of the given object onto the persistent object with the same
+            identifier. If there is no persistent instance currently associated with
+            the session, it will be loaded. Return the persistent instance. If the
+            given instance is unsaved, save a copy of and return it as a newly persistent
+            instance. The given instance does not become associated with the session.
+            This operation cascades to associated instances if the association is mapped
+            with <tt>cascade="merge"</tt>.<br/>
+            The semantics of this method are defined by JSR-220.
+            </summary>
+            <param name="entity">a detached instance with state to be copied </param>
+            <returns> an updated persistent instance </returns>
+        </member>
+        <member name="M:NHibernate.ISession.Merge``1(System.String,``0)">
+            <summary>
+            Copy the state of the given object onto the persistent object with the same
+            identifier. If there is no persistent instance currently associated with
+            the session, it will be loaded. Return the persistent instance. If the
+            given instance is unsaved, save a copy of and return it as a newly persistent
+            instance. The given instance does not become associated with the session.
+            This operation cascades to associated instances if the association is mapped
+            with <tt>cascade="merge"</tt>.<br/>
+            The semantics of this method are defined by JSR-220.
+            <param name="entityName">Name of the entity.</param>
+            <param name="entity">a detached instance with state to be copied </param>
             <returns> an updated persistent instance </returns>
             </summary>
             <returns></returns>
