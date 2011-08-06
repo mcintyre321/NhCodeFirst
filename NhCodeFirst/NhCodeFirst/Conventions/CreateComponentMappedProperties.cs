@@ -39,8 +39,15 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 return null;
             var component = new component() { name = mi.Name, access = mi.Access(), };
             var prefix = columnPrefix + component.name.Sanitise() + "_";
+            var fieldsAndProperties = mi.ReturnType().GetFieldsAndProperties().ToList();
+            var parent = fieldsAndProperties.SingleOrDefault(p => p.Name.TrimStart('_').ToLower() == "parent");
+            if (parent != null)
+            {
+                fieldsAndProperties.Remove(parent);
+                component.parent = new parent() {name = parent.Name, };
+            }
 
-            foreach (var memberInfo in mi.ReturnType().GetFieldsAndProperties())
+            foreach (var memberInfo in fieldsAndProperties)
             {
                 var subcomponent = GetComponent(memberInfo, prefix);
                 if (subcomponent != null)
