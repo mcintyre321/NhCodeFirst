@@ -34,15 +34,26 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
         internal static property GetProperty(MemberInfo memberInfo, string prefix = "")
         {
             if (memberInfo.IsReadOnlyProperty()) return null;
-            if (!(BasicTypes.Contains(memberInfo.ReturnType()) || memberInfo.ReturnType().IsEnum))
+
+
+            var userType = Type.GetType(memberInfo.ReturnType().FullName + "UserType" + ", " + memberInfo.ReturnType().Assembly.FullName);
+            
+            if (!BasicTypes.Contains(memberInfo.ReturnType()) && !memberInfo.ReturnType().IsEnum && userType == null)
                 return null;
+
             var property = new property()
                                {
                                    name = memberInfo.Name,
                                    column = { new column().Setup(memberInfo, columnPrefix: prefix)},
                                    access = memberInfo.Access(),
-                                   notnull = !memberInfo.Nullable()
+                                   notnull = !memberInfo.Nullable(),
                                };
+            
+            if (userType != null)
+            {
+                property.type1 = userType.AssemblyQualifiedName;
+            }
+            
             SetUniqueProperties(memberInfo, property);
 
             //this if statement could be happily replaced by some nifty lookup table or something
