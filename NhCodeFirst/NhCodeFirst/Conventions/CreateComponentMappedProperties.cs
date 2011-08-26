@@ -25,7 +25,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
         }
         public void Apply(Type type, @class @class, IEnumerable<Type> entityTypes, hibernatemapping hbm)
         {
-            foreach (var memberInfo in type.GetFieldsAndProperties())
+            foreach (var memberInfo in type.GetSettableFieldsAndProperties())
             {
                 var component = GetComponent(memberInfo);
                 if (component != null) @class.component.Add(component);
@@ -37,9 +37,15 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
         {
             if (!_identificationRules.Any(rule => rule(mi)))
                 return null;
-            var component = new component() { name = mi.Name, access = mi.Access(), };
+
+            var fields = mi.DeclaringType.GetSettableFieldsAndProperties();
+            var backingField = fields.SingleOrDefault(f => f.IsBackingFieldFor(mi));
+            if (fields.Any(mi.IsBackingFieldFor)) return null; //we don't want to map the wrapping properties
+
+
+            var component = new component() { name = mi.Name, access= mi.Access()};
             var prefix = columnPrefix + component.name.Sanitise() + "_";
-            var fieldsAndProperties = mi.ReturnType().GetFieldsAndProperties().ToList();
+            var fieldsAndProperties = mi.ReturnType().GetSettableFieldsAndProperties().ToList();
             var parent = fieldsAndProperties.SingleOrDefault(p => p.Name.TrimStart('_').ToLower() == "parent");
             if (parent != null)
             {

@@ -1,7 +1,9 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using NHibernate.Dialect;
 using NHibernate.Type;
 using urn.nhibernate.mapping.Item2.Item2;
 
@@ -16,7 +18,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             if (memberInfo.ReturnType() == typeof(string))
             {
                 var stringLengthAttribute = memberInfo.GetCustomAttributes(true).OfType<StringLengthAttribute>().SingleOrDefault();
-                string maxLength = stringLengthAttribute == null ? "MAX" : stringLengthAttribute.MaximumLength.ToString();
+                string maxLength = stringLengthAttribute == null ? SqlDialect.Current.VarcharMax : stringLengthAttribute.MaximumLength.ToString();
                 column.sqltype = "NVARCHAR(" + maxLength + ")";
             }
             if (memberInfo.ReturnType() == typeof(byte[]))
@@ -39,6 +41,30 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
         } 
 
     }
+
+    public class SqlDialect
+    {
+        public static SqlDialect Default
+        {
+            get { return SqlDialect.MsSql; }
+        }
+
+        protected static SqlDialect MsSql = new SqlDialect()
+        {
+            VarcharMax = "MAX"
+        };
+
+        public static SqlDialect SQLite = new SqlDialect()
+        {
+            VarcharMax = int.MaxValue.ToString()
+        };
+
+
+        public string VarcharMax { get; private set; }
+
+        public static SqlDialect Current { get; set; }
+    }
+
     static class Extensions
     {
         public static @class ClassElement(this Type type, hibernatemapping hbm)
@@ -48,8 +74,21 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
 
         public static string Access(this MemberInfo memberInfo)
         {
-            var access = memberInfo.MemberType == MemberTypes.Field ? "field" : null;
-            //if (memberInfo.Name.StartsWith("_") && access != null) access += "-underscore";
+            var backingField = memberInfo.DeclaringType.GetSettableFieldsAndProperties()
+                .SingleOrDefault(f => f.IsBackingFieldFor(memberInfo));
+
+            if (memberInfo.MemberType == MemberTypes.Field)
+            {
+                Debug.Assert(backingField == null, "If this is a field, it shouldn't have a backing field (only properties do)");
+                return "field";
+            }
+            //so we must be a property...
+            if (backingField == null)
+            {
+                return null; //vanilla property
+            }
+            var access = "field.camelcase";
+            if (backingField.Name.StartsWith("_")) access += "-underscore";
             return access;
         }
 
@@ -79,9 +118,19 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             return s.StripUnderscores().Capitalise();
         }
 
-        private static bool IsNullableType(this Type theType)
+        public static bool IsNullableType(this Type theType)
         {
-            return theType.IsClass || theType.IsInterface || (theType.IsGenericType && theType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)));
+            return theType.IsClass || theType.IsInterface || theType.IsNullableValueType();
+        }
+
+        public static Type GetTypeOrNonNullableType(this Type type)
+        {
+            return IsNullableValueType(type) ? type.GetGenericArguments()[0] : type;
+        }
+
+        private static bool IsNullableValueType(this Type type)
+        {
+             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
     }
 }

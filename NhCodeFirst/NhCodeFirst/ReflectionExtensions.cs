@@ -107,12 +107,16 @@ namespace NhCodeFirst.NhCodeFirst
 		}
 
 		public static BindingFlags BindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-		public static IEnumerable<MemberInfo> GetFieldsAndProperties(this Type type)
-		{
-			return
-				type.GetAllMembers().Where(
-					m => m.MemberType == MemberTypes.Field || m.MemberType == MemberTypes.Property);
-		}
+        public static IEnumerable<MemberInfo> GetFieldsAndProperties(this Type type)
+        {
+            return
+                type.GetAllMembers().Where(
+                    m => m.MemberType == MemberTypes.Field || m.MemberType == MemberTypes.Property);
+        }
+        public static IEnumerable<MemberInfo> GetSettableFieldsAndProperties(this Type type)
+        {
+            return type.GetFieldsAndProperties().Where(m => !m.IsReadOnlyProperty());
+        }
 
 		public static bool IsReadOnlyProperty(this MemberInfo mi)
 		{
@@ -121,7 +125,7 @@ namespace NhCodeFirst.NhCodeFirst
 		}
 		public static IEnumerable<MemberInfo> GetAllMembers(this Type type)
 		{
-			return type.GetMembers(BindingFlags).Where(p => p.IsBackingField() == false);
+            return type.GetMembers(BindingFlags).Where(p => p.Name.Contains("__BackingField") == false);
 		}
 
 		public static void SetValue(this MemberInfo memberInfo, object obj, object value)
@@ -192,9 +196,13 @@ namespace NhCodeFirst.NhCodeFirst
 			return typeof (T).MakeGenericType(genericType).IsAssignableFrom(type);
 		}
 
-		public static bool IsBackingField(this MemberInfo info)
+		public static bool IsBackingFieldFor(this MemberInfo bf, MemberInfo potentialProp)
 		{
-			return info.Name.ToLower().Contains("backing");
+            if(potentialProp.MemberType != MemberTypes.Property) return false;
+            if (potentialProp.DeclaringType != bf.DeclaringType) return false;
+            if (potentialProp.ReturnType() != bf.ReturnType()) return false;
+            if (potentialProp == bf) return false;
+		    return bf.Name.ToLower().TrimStart('_') == potentialProp.Name.ToLower();
 		}
 	}
 }

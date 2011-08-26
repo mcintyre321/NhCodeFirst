@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Web.Hosting;
 using DependencySort;
 using NhCodeFirst.NhCodeFirst.Conventions;
@@ -66,6 +67,8 @@ namespace NhCodeFirst.NhCodeFirst
         #region Dialect methods
         public IConfigurationNeedingEntities ForSql2008(string connectionString)
         {
+            SqlDialect.Current = SqlDialect.Default;
+
             _cfg
                 .SetProperty(Environment.Dialect, typeof (NHibernate.Dialect.MsSql2008Dialect).AssemblyQualifiedName)
                 .SetProperty(Environment.ConnectionDriver, "NHibernate.Driver.SqlClientDriver")
@@ -75,6 +78,8 @@ namespace NhCodeFirst.NhCodeFirst
         }
         public IConfigurationNeedingEntities ForInMemorySqlite()
         {
+            SqlDialect.Current = SqlDialect.SQLite;
+
             _cfg
                 .SetProperty(Environment.ReleaseConnections, "on_close")
                 .SetProperty(Environment.Dialect, typeof (SQLiteDialect).AssemblyQualifiedName)
@@ -159,7 +164,8 @@ namespace NhCodeFirst.NhCodeFirst
 
             var xml = mappingXDoc.ToString();
 #if DEBUG
-            File.WriteAllText(Path.Combine(HostingEnvironment.ApplicationPhysicalPath, "config.hbm.xml"), xml);
+            var path = HostingEnvironment.ApplicationPhysicalPath ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase.Replace("file:///", "").Replace("/", "\\"));
+            File.WriteAllText(Path.Combine(path, "config.hbm.xml"), xml);
 #endif
             _cfg.AddXml(xml);
             return _cfg;

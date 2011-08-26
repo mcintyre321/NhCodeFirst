@@ -11,11 +11,11 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
 {
     public class CreateBasicProperties : IClassConvention, IRunAfter<CreateNonCompositeIdentity>, IRunAfter<AddVersion>
     {
-        public static readonly IList<Type> BasicTypes = new[] { typeof(Guid), typeof(Guid?), typeof(int), typeof(int?), typeof(string), typeof(bool), typeof(bool?), typeof(DateTime), typeof(DateTime?), typeof(DateTimeOffset), typeof(DateTimeOffset?), typeof(Byte[]) }.ToList().AsReadOnly();
+        public static readonly IList<Type> BasicTypes = new[] { typeof(Guid), typeof(int), typeof(string), typeof(bool), typeof(DateTime), typeof(DateTimeOffset), typeof(Byte[]), typeof(Double), }.ToList().AsReadOnly();
 
         public void Apply(Type type, @class @class, IEnumerable<Type> entityTypes, hibernatemapping hbm)
         {
-            var memberInfos = type.GetFieldsAndProperties()
+            var memberInfos = type.GetSettableFieldsAndProperties()
                 .Where(p => p.Name != @class.id.name)
                 .Where(p => @class.version == null || p.Name != @class.version.name);
             foreach (var memberInfo in memberInfos)
@@ -34,11 +34,13 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
         internal static property GetProperty(MemberInfo memberInfo, string prefix = "")
         {
             if (memberInfo.IsReadOnlyProperty()) return null;
+            if (memberInfo.DeclaringType.GetSettableFieldsAndProperties().Any(memberInfo.IsBackingFieldFor)) return null;    
 
+            var returnType = memberInfo.ReturnType();
+            var userType = Type.GetType(returnType.FullName + "UserType" + ", " + returnType.Assembly.FullName);
 
-            var userType = Type.GetType(memberInfo.ReturnType().FullName + "UserType" + ", " + memberInfo.ReturnType().Assembly.FullName);
-            
-            if (!BasicTypes.Contains(memberInfo.ReturnType()) && !memberInfo.ReturnType().IsEnum && userType == null)
+            var typeOrNonNullableType = returnType.GetTypeOrNonNullableType();
+            if (!BasicTypes.Any(t => typeOrNonNullableType == t) && !returnType.IsEnum && userType == null)
                 return null;
 
             var property = new property()
@@ -57,18 +59,18 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             SetUniqueProperties(memberInfo, property);
 
             //this if statement could be happily replaced by some nifty lookup table or something
-            if (memberInfo.ReturnType() == typeof(DateTimeOffset) || memberInfo.ReturnType() == typeof(DateTimeOffset?))
+            if (returnType == typeof(DateTimeOffset) || returnType == typeof(DateTimeOffset?))
             {
                 property.type1 = "datetimeoffset";
             }
-            if (memberInfo.ReturnType() == typeof(DateTime) || memberInfo.ReturnType() == typeof(DateTime?))
+            if (returnType == typeof(DateTime) || returnType == typeof(DateTime?))
             {
                 property.type1 = "UtcDateTime";
             }
-            if (memberInfo.ReturnType().IsEnum)
+            if (returnType.IsEnum)
             {
                 property.type1 =
-                    typeof (EnumStringType<>).MakeGenericType(memberInfo.ReturnType()).AssemblyQualifiedName;
+                    typeof (EnumStringType<>).MakeGenericType(returnType).AssemblyQualifiedName;
             }
             return property;
         }
