@@ -106,8 +106,9 @@ namespace NhCodeFirst.NhCodeFirst
 			return PluralizationService.CreateService(CultureInfo.CurrentCulture).Pluralize(text);
 		}
 
-		public static BindingFlags BindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-        public static IEnumerable<MemberInfo> GetFieldsAndProperties(this Type type)
+	    private static BindingFlags _instanceBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
+	    public static IEnumerable<MemberInfo> GetFieldsAndProperties(this Type type)
         {
             return
                 type.GetAllMembers().Where(
@@ -118,14 +119,20 @@ namespace NhCodeFirst.NhCodeFirst
             return type.GetFieldsAndProperties().Where(m => !m.IsReadOnlyProperty());
         }
 
-		public static bool IsReadOnlyProperty(this MemberInfo mi)
-		{
-			return mi.MemberType == MemberTypes.Property && 
-				   !mi.DeclaringType.GetProperty(mi.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).CanWrite;
-		}
+        public static bool IsReadOnlyProperty(this MemberInfo mi)
+        {
+            return mi.MemberType == MemberTypes.Property &&
+                   !mi.DeclaringType.GetProperty(mi.Name, _instanceBindingFlags).CanWrite;
+        }
+
+        public static bool IsReadOnlyField(this MemberInfo mi)
+        {
+            return mi.MemberType == MemberTypes.Field &&
+                   mi.DeclaringType.GetField(mi.Name, _instanceBindingFlags).IsInitOnly;
+        }
 		public static IEnumerable<MemberInfo> GetAllMembers(this Type type)
 		{
-            return type.GetMembers(BindingFlags).Where(p => p.Name.Contains("__BackingField") == false);
+            return type.GetMembers(_instanceBindingFlags).Where(p => p.Name.Contains("__BackingField") == false);
 		}
 
 		public static void SetValue(this MemberInfo memberInfo, object obj, object value)
@@ -155,11 +162,11 @@ namespace NhCodeFirst.NhCodeFirst
 		{
 			if (memberInfo.MemberType == MemberTypes.Field)
 			{
-				return memberInfo.DeclaringType.GetField(memberInfo.Name, BindingFlags).FieldType;
+				return memberInfo.DeclaringType.GetField(memberInfo.Name, _instanceBindingFlags).FieldType;
 			}
 			if (memberInfo.MemberType == MemberTypes.Property)
 			{
-				return memberInfo.DeclaringType.GetProperty(memberInfo.Name, BindingFlags).PropertyType;
+				return memberInfo.DeclaringType.GetProperty(memberInfo.Name, _instanceBindingFlags).PropertyType;
 			}
 			return null;
 		}

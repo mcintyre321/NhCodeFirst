@@ -15,10 +15,10 @@ using Environment = NHibernate.Cfg.Environment;
 namespace NhCodeFirst.NhCodeFirst
 {
     public interface IConfigurationNeedingDialect
-     {
-         IConfigurationNeedingEntities ForSql2008(string connectionString);
-         IConfigurationNeedingEntities ForInMemorySqlite();
-     }
+    {
+        IConfigurationNeedingEntities ForSql2008(string connectionString);
+        IConfigurationNeedingEntities ForInMemorySqlite();
+    }
 
     public interface IConfigurationNeedingEntities
     {
@@ -28,21 +28,30 @@ namespace NhCodeFirst.NhCodeFirst
 
     public class MatchEntities
     {
-        public Func<Type, bool> IsEntityMatch { get; private set; }
+        public Func<Type, bool> IsEntityMatch
+        {
+            get { return t => filters.All(f => f(t)); }
+        }
 
         protected MatchEntities(Func<Type, bool> isEntityMatch)
         {
-            IsEntityMatch = isEntityMatch;
+            filters.Add(isEntityMatch);
         }
 
-        public static MatchEntities All {get { return new MatchEntities((t) => true); }}
-        public static MatchEntities WithIdProperty {get { return new MatchEntities((t) => t.GetProperty("Id") != null); }}
+        public static MatchEntities All { get { return new MatchEntities((t) => true); } }
+        public static MatchEntities WithIdProperty { get { return new MatchEntities((t) => t.GetProperty("Id") != null); } }
 
+        public MatchEntities Where(Func<Type, bool> func)
+        {
+            this.filters.Add(func);
+            return this;
+        }
+        List<Func<Type, bool>> filters = new List<Func<Type, bool>>();
     }
 
     public class ConfigurationBuilder : IConfigurationNeedingEntities, IConfigurationNeedingDialect
     {
-        
+
         private readonly Configuration _cfg;
         private ConfigurationBuilder()
         {
@@ -61,7 +70,7 @@ namespace NhCodeFirst.NhCodeFirst
             transform(_cfg);
             return this;
         }
-        
+
         #endregion
 
         #region Dialect methods
@@ -70,7 +79,7 @@ namespace NhCodeFirst.NhCodeFirst
             SqlDialect.Current = SqlDialect.Default;
 
             _cfg
-                .SetProperty(Environment.Dialect, typeof (NHibernate.Dialect.MsSql2008Dialect).AssemblyQualifiedName)
+                .SetProperty(Environment.Dialect, typeof(NHibernate.Dialect.MsSql2008Dialect).AssemblyQualifiedName)
                 .SetProperty(Environment.ConnectionDriver, "NHibernate.Driver.SqlClientDriver")
                 .SetProperty(Environment.ConnectionString, connectionString)
                 .SetProperty(Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider");
@@ -82,8 +91,8 @@ namespace NhCodeFirst.NhCodeFirst
 
             _cfg
                 .SetProperty(Environment.ReleaseConnections, "on_close")
-                .SetProperty(Environment.Dialect, typeof (SQLiteDialect).AssemblyQualifiedName)
-                .SetProperty(Environment.ConnectionDriver, typeof (SQLite20Driver).AssemblyQualifiedName)
+                .SetProperty(Environment.Dialect, typeof(SQLiteDialect).AssemblyQualifiedName)
+                .SetProperty(Environment.ConnectionDriver, typeof(SQLite20Driver).AssemblyQualifiedName)
                 .SetProperty(Environment.ConnectionString, "data source=:memory:");
             return this;
         }
@@ -100,13 +109,14 @@ namespace NhCodeFirst.NhCodeFirst
             do
             {
                 var typeToBeChecked = typesToBeChecked.Dequeue();
-                
+
                 if ((matchEntities ?? MatchEntities.All).IsEntityMatch(typeToBeChecked))
                     entityTypes.Add(typeToBeChecked);
-                
+
                 if (matchEntities != null)
                 {
                     var relatedEntities = typeToBeChecked.GetAllMembers()
+                        .Where(m => m.IsReadOnlyField() == false)
                         .Select(m => m.ReturnType())
                         .Where(m => m != null)
                         .Select(t => t.GetTypeOrGenericArgumentTypeForICollection())
@@ -181,7 +191,7 @@ namespace NhCodeFirst.NhCodeFirst
             var conventionTypes = unsortedConventionTypes.TopologicalSort();
             return conventionTypes.Select(t => (T)Activator.CreateInstance(t)).ToList();
         }
-    
+
         public Configuration Build(string connectionString, IEnumerable<Type> entityTypes)
         {
             var cfg = new ConfigurationBuilder()
