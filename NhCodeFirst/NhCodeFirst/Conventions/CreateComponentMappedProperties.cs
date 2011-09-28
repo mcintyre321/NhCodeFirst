@@ -39,7 +39,6 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 return null;
 
             var fields = mi.DeclaringType.GetSettableFieldsAndProperties();
-            var backingField = fields.SingleOrDefault(f => f.IsBackingFieldFor(mi));
             if (fields.Any(mi.IsBackingFieldFor)) return null; //we don't want to map the wrapping properties
 
 
@@ -61,7 +60,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                     component.component1.Add(component);
                     continue;
                 }
-                var property = CreateBasicProperties.GetProperty(memberInfo, prefix);
+                var property = CreateBasicProperties.GetProperty(memberInfo, prefix, propMi => false);
                 if (property != null)
                 {
                     component.property.Add(property);

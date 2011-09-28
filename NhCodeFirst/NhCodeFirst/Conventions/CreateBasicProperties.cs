@@ -31,11 +31,12 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             return GetProperty(memberInfo);
         }
 
-        internal static property GetProperty(MemberInfo memberInfo, string prefix = "")
+        internal static property GetProperty(MemberInfo memberInfo, string prefix = "", Func<MemberInfo, bool> notNull = null)
         {
             if (memberInfo.IsReadOnlyProperty()) return null;
-            if (memberInfo.DeclaringType.GetSettableFieldsAndProperties().Any(memberInfo.IsBackingFieldFor)) return null;    
+            if (memberInfo.DeclaringType.GetSettableFieldsAndProperties().Any(memberInfo.IsBackingFieldFor)) return null;
 
+            notNull = notNull ?? (mi => !mi.Nullable());
             var returnType = memberInfo.ReturnType();
             var userType = Type.GetType(returnType.FullName + "UserType" + ", " + returnType.Assembly.FullName);
 
@@ -46,11 +47,11 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             var property = new property()
                                {
                                    name = memberInfo.Name,
-                                   column = { new column().Setup(memberInfo, columnPrefix: prefix)},
                                    access = memberInfo.Access(),
-                                   notnull = !memberInfo.Nullable(),
+                                   notnull = notNull(memberInfo),
                                };
-            
+            property.column.Add(new column().Setup(memberInfo, columnPrefix: prefix, notnull: property.notnull));
+                                   
             if (userType != null)
             {
                 property.type1 = userType.AssemblyQualifiedName;

@@ -11,7 +11,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
 {
     static class ColumnExtensions
     {
-        public static column Setup(this column column, MemberInfo memberInfo, string columnName = null, string columnPrefix = "")
+        public static column Setup(this column column, MemberInfo memberInfo, string columnName = null, string columnPrefix = "", bool? notnull = true)
         {
             column.SetName(columnName ?? column.GetName() ?? memberInfo.Name.Sanitise(), columnPrefix);
 
@@ -26,7 +26,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 column.sqltype = "VARBINARY(MAX)";
             }
 
-            column.notnull = !memberInfo.Nullable();
+            column.notnull = notnull;
 
             return column;
         }
