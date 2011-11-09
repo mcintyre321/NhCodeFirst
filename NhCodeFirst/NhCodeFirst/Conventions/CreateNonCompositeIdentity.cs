@@ -20,7 +20,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             {
                 var idType = idMember.ReturnType();
                 //if the id property exists, add a new id element to the @class element
-                classElement.id = new id() 
+                classElement.id = new id()
                 {
                     name = idMember.Name.Sanitise(),
                     column = { new column().Setup(idMember).Apply(c => c.notnull = true) }
@@ -28,14 +28,19 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
 
                 if (CanUseHiloGenerator(idType)) //if is integer of some kind
                 {
-                    classElement.id.generator = new generator() {@class = "hilo", param= {param.Parse(@"<param name=""max_lo"" xmlns=""urn:nhibernate-mapping-2.2"" >10</param>")}};
+                    classElement.id.generator = new generator() { @class = "hilo", param = { param.Parse(@"<param name=""max_lo"" xmlns=""urn:nhibernate-mapping-2.2"" >10</param>") } };
                 }
+                else if (idType == typeof(Guid))
+                {
+                    classElement.id.generator = new generator() { @class = "guid.comb"} ;
+                }
+
             }
         }
 
         private bool CanUseHiloGenerator(Type idType)
         {
-            return new[]{typeof(int), typeof(long)}.Contains(idType);
+            return new[] { typeof(int), typeof(long) }.Contains(idType);
         }
     }
 }

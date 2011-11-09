@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{2D2F70D2-17F6-4AC6-8A38-FC61CE585C0E}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NhCodeFirst</RootNamespace>
     <AssemblyName>NhCodeFirst</AssemblyName>
@@ -31,7 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>NhCodeFirst.ExampleDomain.Program</StartupObject>
+    <StartupObject>
+    </StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Live|AnyCPU'">
     <OutputPath>bin\Live\</OutputPath>
@@ -70,11 +71,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExampleDomain\PhotoGallery.cs" />
-    <Compile Include="ExampleDomain\Friendship.cs" />
-    <Compile Include="ExampleDomain\SocialNetworkDb.cs" />
-    <Compile Include="ExampleDomain\User.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="NhCodeFirst\DatabaseInitializer.cs" />
     <Compile Include="NhCodeFirst\ConfigurationBuilder.cs" />
     <Compile Include="NhCodeFirst\Conventions\AddVersion.cs" />
