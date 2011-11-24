@@ -71,6 +71,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuxDbExtensions.cs" />
     <Compile Include="NhCodeFirst\DatabaseInitializer.cs" />
     <Compile Include="NhCodeFirst\ConfigurationBuilder.cs" />
     <Compile Include="NhCodeFirst\Conventions\AddVersion.cs" />
@@ -86,7 +87,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

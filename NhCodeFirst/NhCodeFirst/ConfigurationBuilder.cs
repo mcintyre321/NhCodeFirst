@@ -56,6 +56,7 @@ namespace NhCodeFirst.NhCodeFirst
         private ConfigurationBuilder()
         {
             _cfg = new Configuration();
+
         }
         public static IConfigurationNeedingDialect New()
         {
@@ -135,6 +136,7 @@ namespace NhCodeFirst.NhCodeFirst
                             typesToBeChecked.Enqueue(e);
                         }
                     }
+
                 }
             } while (typesToBeChecked.Any());
             return entityTypes;
@@ -172,12 +174,23 @@ namespace NhCodeFirst.NhCodeFirst
                 }
             }
 
+
             var xml = mappingXDoc.ToString();
 #if DEBUG
             var path = HostingEnvironment.ApplicationPhysicalPath ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase.Replace("file:///", "").Replace("/", "\\"));
             File.WriteAllText(Path.Combine(path, "config.hbm.xml"), xml);
 #endif
             _cfg.AddXml(xml);
+
+
+            foreach (var classConvention in conventions)
+            {
+                foreach (var adbo in classConvention.AuxDbObjects())
+                {
+                    _cfg.AddAuxiliaryDatabaseObject(adbo);
+
+                }
+            }
             return _cfg;
         }
 

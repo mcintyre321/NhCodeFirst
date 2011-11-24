@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using DependencySort;
+using NHibernate.Mapping;
 using urn.nhibernate.mapping.Item2.Item2;
 
 namespace NhCodeFirst.NhCodeFirst.Conventions
@@ -69,6 +70,11 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 
             }
             return component;
+        }
+
+        public IEnumerable<IAuxiliaryDatabaseObject> AuxDbObjects()
+        {
+            yield break;
         }
 
         private static string GetColumnNamePrefix(MemberInfo memberInfo)

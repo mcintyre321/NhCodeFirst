@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using DependencySort;
+using NHibernate.Mapping;
 using NHibernate.Type;
 using urn.nhibernate.mapping.Item2.Item2;
 
@@ -74,6 +75,11 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                     typeof (EnumStringType<>).MakeGenericType(returnType).AssemblyQualifiedName;
             }
             return property;
+        }
+
+        public IEnumerable<IAuxiliaryDatabaseObject> AuxDbObjects()
+        {
+            yield break;
         }
 
         private static void SetUniqueProperties(MemberInfo memberInfo, property property)
