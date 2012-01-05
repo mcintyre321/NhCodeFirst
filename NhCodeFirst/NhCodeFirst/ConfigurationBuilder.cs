@@ -102,48 +102,52 @@ namespace NhCodeFirst.NhCodeFirst
 
         IEnumerable<Type> GetEntityTypes(IEnumerable<Type> rootEntityTypes, MatchEntities matchEntities)
         {
-            var typesToBeChecked = new Queue<Type>(rootEntityTypes);
-
-            var checkedTypes = new HashSet<Type>();
-            var entityTypes = new HashSet<Type>();
-
-            do
+            using (Profiler.Step("GettingEntityTypes"))
             {
-                var typeToBeChecked = typesToBeChecked.Dequeue();
+                var typesToBeChecked = new Queue<Type>(rootEntityTypes);
 
-                if ((matchEntities ?? MatchEntities.All).IsEntityMatch(typeToBeChecked))
-                    entityTypes.Add(typeToBeChecked);
+                var checkedTypes = new HashSet<Type>();
+                var entityTypes = new HashSet<Type>();
 
-                if (matchEntities != null)
+                do
                 {
-                    var relatedEntities = typeToBeChecked.GetAllMembers()
-                        .Where(m => m.IsReadOnlyField() == false)
-                        .Select(m => m.ReturnType())
-                        .Where(m => m != null)
-                        .Select(t => t.GetTypeOrGenericArgumentTypeForICollection())
-                        .Select(t => t.GetTypeOrGenericArgumentTypeForIQueryable())
-                        .Where(m => m != null);
+                    var typeToBeChecked = typesToBeChecked.Dequeue();
 
-                    foreach (var e in relatedEntities)
+                    if ((matchEntities ?? MatchEntities.All).IsEntityMatch(typeToBeChecked))
+                        entityTypes.Add(typeToBeChecked);
+
+                    if (matchEntities != null)
                     {
-                        if (matchEntities.IsEntityMatch(e))
+                        var relatedEntities = typeToBeChecked.GetAllMembers()
+                            .Where(m => m.IsReadOnlyField() == false)
+                            .Select(m => m.ReturnType())
+                            .Where(m => m != null)
+                            .Select(t => t.GetTypeOrGenericArgumentTypeForICollection())
+                            .Select(t => t.GetTypeOrGenericArgumentTypeForIQueryable())
+                            .Where(m => m != null);
+
+                        foreach (var e in relatedEntities)
                         {
-                            entityTypes.Add(e);
+                            if (matchEntities.IsEntityMatch(e))
+                            {
+                                entityTypes.Add(e);
+                            }
+
+                            if (checkedTypes.Add(e))
+                            {
+                                typesToBeChecked.Enqueue(e);
+                            }
                         }
 
-                        if (checkedTypes.Add(e))
-                        {
-                            typesToBeChecked.Enqueue(e);
-                        }
                     }
-
-                }
-            } while (typesToBeChecked.Any());
-            return entityTypes;
+                } while (typesToBeChecked.Any());
+                return entityTypes;
+            }
         }
 
         public Configuration MapEntities(IEnumerable<Type> rootEntityTypes, MatchEntities matchEntities = null)
         {
+
             var entityTypes = GetEntityTypes(rootEntityTypes, matchEntities);
 
             var mappingXDoc = new hibernatemapping(); //this creates the mapping xml document
@@ -163,18 +167,22 @@ namespace NhCodeFirst.NhCodeFirst
                 GetAll<IClassConvention>() //get all the conventions from the current project
                     .TopologicalSort() //sort them into a dependency tree
                     .ToList();
-
-            //run througn all the conventions, updating the document as we go
-            foreach (var convention in conventions)
+            using (Profiler.Step("Running conventions"))
             {
-                foreach (var type in entityTypes)
+                //run througn all the conventions, updating the document as we go
+                foreach (var convention in conventions)
                 {
-                    var @class = mappingXDoc.@class.Single(c => c.name == type.AssemblyQualifiedName);
-                    convention.Apply(type, @class, entityTypes, mappingXDoc);
+                    using (Profiler.Step("Running convention " + convention.ToString()))
+                    {
+                        foreach (var type in entityTypes)
+                        {
+                            var @class = mappingXDoc.@class.Single(c => c.name == type.AssemblyQualifiedName);
+                            convention.Apply(type, @class, entityTypes, mappingXDoc);
+                        }
+                    }
                 }
+
             }
-
-
             var xml = mappingXDoc.ToString();
 #if DEBUG
             var path = HostingEnvironment.ApplicationPhysicalPath ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase.Replace("file:///", "").Replace("/", "\\"));

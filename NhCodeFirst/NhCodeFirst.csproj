@@ -84,6 +84,7 @@
     <Compile Include="NhCodeFirst\DbContext.cs" />
     <Compile Include="NhCodeFirst\nhibernate-mapping.cs" />
     <Compile Include="NhCodeFirst\ReflectionExtensions.cs" />
+    <Compile Include="Profiler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
