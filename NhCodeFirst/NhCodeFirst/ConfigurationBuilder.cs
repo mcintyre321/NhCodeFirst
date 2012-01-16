@@ -51,16 +51,19 @@ namespace NhCodeFirst.NhCodeFirst
 
     public class ConfigurationBuilder : IConfigurationNeedingEntities, IConfigurationNeedingDialect
     {
+        private readonly bool _writeToDisk;
 
         private readonly Configuration _cfg;
-        private ConfigurationBuilder()
+ 
+        private ConfigurationBuilder(bool writeToDisk)
         {
+            _writeToDisk = writeToDisk;
             _cfg = new Configuration();
-
         }
-        public static IConfigurationNeedingDialect New()
+
+        public static IConfigurationNeedingDialect New(bool writeToDisk = false)
         {
-            return new ConfigurationBuilder();
+            return new ConfigurationBuilder(writeToDisk);
         }
 
 
@@ -184,10 +187,14 @@ namespace NhCodeFirst.NhCodeFirst
 
             }
             var xml = mappingXDoc.ToString();
-#if DEBUG
-            var path = HostingEnvironment.ApplicationPhysicalPath ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase.Replace("file:///", "").Replace("/", "\\"));
-            File.WriteAllText(Path.Combine(path, "config.hbm.xml"), xml);
-#endif
+            if (_writeToDisk)
+            {
+                var path = HostingEnvironment.ApplicationPhysicalPath ??
+                           Path.GetDirectoryName(
+                                                 Assembly.GetExecutingAssembly().CodeBase.Replace("file:///", "").
+                                                     Replace("/", "\\"));
+                File.WriteAllText(Path.Combine(path, "config.hbm.xml"), xml);
+            }
             _cfg.AddXml(xml);
 
 
