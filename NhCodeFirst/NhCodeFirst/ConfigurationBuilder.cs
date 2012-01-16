@@ -55,7 +55,7 @@ namespace NhCodeFirst.NhCodeFirst
 
         private readonly Configuration _cfg;
  
-        private ConfigurationBuilder(bool writeToDisk)
+        private ConfigurationBuilder(bool writeToDisk = false)
         {
             _writeToDisk = writeToDisk;
             _cfg = new Configuration();
