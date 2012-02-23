@@ -62,7 +62,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                                           key = new key()
                                                     {
                                                         column = manyToOne.column.Copy(),
-                                                        foreignkey = "FK_" + @class.name + "_" + memberInfo.Name + "_to_" + correspondingCollection.Name,
+                                                        foreignkey = "FK_" + @class.table + "_" + memberInfo.Name + "_to_" + correspondingCollection.Name,
                                                         notnull = !memberInfo.Nullable(),
                                                         
                                                         
