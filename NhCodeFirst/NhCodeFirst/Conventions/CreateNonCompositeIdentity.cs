@@ -17,9 +17,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
         public void Apply(Type entityType, @class classElement, IEnumerable<Type> entityTypes, hibernatemapping hbm)
         {
             //use reflection to get the Id property from the current class
-            var idMember = entityType.GetFieldsAndProperties()
-                .Where(e => e.Name.ToLower() == "id" || e.GetCustomAttributes(typeof(KeyAttribute), false).Any())
-                .SingleOrDefault();
+            var idMember = entityType.GetFieldsAndProperties().SingleOrDefault(e => e.Name.ToLower() == "id" || e.GetCustomAttributes(typeof(KeyAttribute), false).Any());
             if (idMember != null)
             {
 
@@ -28,7 +26,10 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 classElement.id = new id()
                 {
                     name = idMember.Name.Sanitise(),
-                    column = { new column().Setup(idMember).Apply(c => c.notnull = true) }
+                    column = { new column()
+                        .Setup(idMember)
+                        .Apply(c => c.notnull = true)
+                        .Apply(c => c.index = "PK_" + idMember.Name.Sanitise()) }
                 };
 
                 if (CanUseHiloGenerator(idType)) //if is integer of some kind
