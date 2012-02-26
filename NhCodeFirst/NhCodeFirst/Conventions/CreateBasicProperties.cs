@@ -57,8 +57,8 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             {
                 property.type1 = userType.AssemblyQualifiedName;
             }
-            
-            SetUniqueProperties(memberInfo, property);
+
+            UniqueAttribute.SetUniqueProperties(memberInfo, property);
 
             //this if statement could be happily replaced by some nifty lookup table or something
             if (returnType == typeof(DateTimeOffset) || returnType == typeof(DateTimeOffset?))
@@ -82,12 +82,27 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             yield break;
         }
 
+        
+    }
+
+    public class UniqueAttribute : Attribute
+    {
+
+        public string KeyName { get; private set; }
+
+        public UniqueAttribute()
+        {
+        }
+        public UniqueAttribute(string keyName)
+        {
+            KeyName = keyName;
+        }
+
         internal static void SetUniqueProperties(MemberInfo memberInfo, property p)
         {
             SetUniqueProperties(memberInfo, ua =>
             {
                 p.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
-                p.unique = true;
                 p.notnull = true;
             });
         }
@@ -97,7 +112,6 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             SetUniqueProperties(memberInfo, ua =>
             {
                 manytoone.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
-                manytoone.unique = true;
                 manytoone.notnull = true;
             });
         }
@@ -108,19 +122,6 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             if (uniqueAttribute == null)
                 return;
             makeUnique(uniqueAttribute);
-        }
-    }
-
-    public class UniqueAttribute : Attribute
-    {
-        public string KeyName { get; private set; }
-
-        public UniqueAttribute()
-        {
-        }
-        public UniqueAttribute(string keyName)
-        {
-            KeyName = keyName;
         }
     }
 }

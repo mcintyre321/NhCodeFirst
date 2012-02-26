@@ -28,7 +28,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                                             .Each(c => c.notnull = !memberInfo.Nullable()).ToList(),
                                         access = memberInfo.Access(),
                                     };
-                CreateBasicProperties.SetUniqueProperties(memberInfo, manyToOne);
+                UniqueAttribute.SetUniqueProperties(memberInfo, manyToOne);
 
                 @class.manytoone.Add(manyToOne);
 
