@@ -36,11 +36,11 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 if (column != null)
                 {
                     column.notnull = ua.NotNull;
-                    column.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
-                }else
+                    column.uniquekey = ua.KeyName ?? ("UQ_" + memberInfo.DeclaringType.Name);
+                }
                 {
                     p.notnull = ua.NotNull;
-                    p.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
+                    p.uniquekey = ua.KeyName ?? ("UQ_" + memberInfo.DeclaringType.Name);
                 }
                 
 
@@ -54,12 +54,11 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 if (column != null)
                 {
                     column.notnull = ua.NotNull;
-                    column.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
+                    column.uniquekey = ua.KeyName ?? ("UQ_" + memberInfo.DeclaringType.Name);
                 }
-                else
                 {
                     manytoone.notnull = ua.NotNull;
-                    manytoone.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
+                    manytoone.uniquekey = ua.KeyName ?? ("UQ_" + memberInfo.DeclaringType.Name);
                 }
 
             });
