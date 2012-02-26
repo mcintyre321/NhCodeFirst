@@ -121,7 +121,6 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                     column.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
                 }
                 manytoone.notnull = ua.NotNull;
-                manytoone.notnull = true;
 
             });
         }
