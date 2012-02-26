@@ -91,10 +91,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
         public string KeyName { get; private set; }
         public bool NotNull { get; private set; }
 
-        public UniqueAttribute()
-        {
-        }
-        public UniqueAttribute(string keyName, bool notNull = true)
+        public UniqueAttribute(string keyName = null, bool notNull = true)
         {
             KeyName = keyName;
             NotNull = notNull;
@@ -105,7 +102,14 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             SetUniqueProperties(memberInfo, ua =>
             {
                 p.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
-                p.notnull = true;
+                var column = p.column.SingleOrDefault();
+                if (column != null)
+                {
+                    column.notnull = ua.NotNull;
+                    column.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
+                }
+        
+                p.notnull = ua.NotNull;
 
             });
         }
