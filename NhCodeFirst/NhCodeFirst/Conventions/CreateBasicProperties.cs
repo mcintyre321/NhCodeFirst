@@ -104,6 +104,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             {
                 p.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
                 p.notnull = true;
+
             });
         }
 
@@ -111,8 +112,13 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
         {
             SetUniqueProperties(memberInfo, ua =>
             {
-                manytoone.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
+                var column = manytoone.column.SingleOrDefault();
+                if (column != null)
+                {
+                    column.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
+                }
                 manytoone.notnull = true;
+
             });
         }
 
