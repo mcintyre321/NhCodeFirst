@@ -92,19 +92,19 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             });
         }
 
-        internal static void SetUniqueProperties(MemberInfo memberInfo, manytoone p)
+        internal static void SetUniqueProperties(MemberInfo memberInfo, manytoone manytoone)
         {
             SetUniqueProperties(memberInfo, ua =>
             {
-                p.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
-                p.unique = true;
-                p.notnull = true;
+                manytoone.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
+                manytoone.unique = true;
+                manytoone.notnull = true;
             });
         }
 
         internal static void SetUniqueProperties(MemberInfo memberInfo, Action<UniqueAttribute> makeUnique)
         {
-            var uniqueAttribute = memberInfo.ReturnType().TryGetAttribute<UniqueAttribute>();
+            var uniqueAttribute = memberInfo.TryGetAttribute<UniqueAttribute>();
             if (uniqueAttribute == null)
                 return;
             makeUnique(uniqueAttribute);
