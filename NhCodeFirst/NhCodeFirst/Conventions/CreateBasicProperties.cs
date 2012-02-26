@@ -107,8 +107,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             var uniqueAttribute = memberInfo.ReturnType().TryGetAttribute<UniqueAttribute>();
             if (uniqueAttribute == null)
                 return;
-
-            
+            makeUnique(uniqueAttribute);
         }
     }
 
