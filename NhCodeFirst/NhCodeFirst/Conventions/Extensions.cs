@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
@@ -92,19 +93,33 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             return access;
         }
 
+        public static List<Func<MemberInfo, bool?>> NullableRules = new List<Func<MemberInfo, bool?>>()
+        {
+            mi => !mi.ReturnType().IsNullableType() ? false : null as bool?,
+            mi => mi.ReturnType().HasAttribute<RequiredAttribute>() ? false : null as bool?,
+            mi => mi.ReturnType().HasAttribute<KeyAttribute>() ? false : null as bool?,
+            mi => mi.ReturnType().HasAttribute<UniqueAttribute>() ? false : null as bool?,
+        };
+
         public static bool Nullable(this MemberInfo memberInfo)
         {
-            var type = memberInfo.ReturnType();
-            return (type.IsNullableType())
-                   && !type.HasAttribute<RequiredAttribute>()
-                   && !type.HasAttribute<KeyAttribute>()
-                   && !type.HasAttribute<UniqueAttribute>();
-
+            foreach (var nullableRule in NullableRules)
+            {
+                var result = nullableRule(memberInfo);
+                if (result.HasValue) return result.Value;
+            }
+            return true;
         }
+
         public static bool HasAttribute<T>(this MemberInfo mi)
         {
-            return mi.GetCustomAttributes(typeof (T), false).Any();
+            return mi.GetCustomAttributes(typeof(T), false).Any();
         }
+        public static T TryGetAttribute<T>(this MemberInfo mi) where T : class
+        {
+            return mi.GetCustomAttributes(typeof(T), false).SingleOrDefault() as T;
+        }
+
         public static string Capitalise(this string s)
         {
             return s.Substring(0, 1).ToUpper() + s.Substring(1);

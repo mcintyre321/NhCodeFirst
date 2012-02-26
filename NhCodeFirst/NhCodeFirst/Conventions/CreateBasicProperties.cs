@@ -82,15 +82,33 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
             yield break;
         }
 
-        private static void SetUniqueProperties(MemberInfo memberInfo, property property)
+        internal static void SetUniqueProperties(MemberInfo memberInfo, property p)
         {
-            var uniqueAttribute = memberInfo.ReturnType().GetCustomAttributes(typeof (UniqueAttribute), false).SingleOrDefault() as UniqueAttribute;
+            SetUniqueProperties(memberInfo, ua =>
+            {
+                p.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
+                p.unique = true;
+                p.notnull = true;
+            });
+        }
+
+        internal static void SetUniqueProperties(MemberInfo memberInfo, manytoone p)
+        {
+            SetUniqueProperties(memberInfo, ua =>
+            {
+                p.uniquekey = ua.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
+                p.unique = true;
+                p.notnull = true;
+            });
+        }
+
+        internal static void SetUniqueProperties(MemberInfo memberInfo, Action<UniqueAttribute> makeUnique)
+        {
+            var uniqueAttribute = memberInfo.ReturnType().TryGetAttribute<UniqueAttribute>();
             if (uniqueAttribute == null)
                 return;
 
-            property.uniquekey = uniqueAttribute.KeyName ?? memberInfo.DeclaringType.Name + "_UniqueKey";
-            property.unique = true;
-            property.notnull = true;
+            
         }
     }
 
