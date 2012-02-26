@@ -24,6 +24,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                                         name = memberInfo.Name.Sanitise(),
                                         column = entityClassElement.id.column.Copy()
                                             .Each(c => c.SetName(prefix + c.GetName()))
+                                            .Each(c => c.index = null)
                                             .Each(c => c.notnull = !memberInfo.Nullable()).ToList(),
                                         access = memberInfo.Access(),
                                     };
