@@ -29,7 +29,8 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                     column = { new column()
                         .Setup(idMember)
                         .Apply(c => c.notnull = true)
-                        .Apply(c => c.index = "PK_" + classElement.table) }
+                        //.Apply(c => c.index = "PK_" + classElement.table) //doesn't work for PK!
+                    }
                 };
 
                 if (CanUseHiloGenerator(idType)) //if is integer of some kind

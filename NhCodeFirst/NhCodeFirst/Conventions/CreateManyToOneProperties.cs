@@ -27,6 +27,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                                             .Each(c => c.index = null)
                                             .Each(c => c.notnull = !memberInfo.Nullable()).ToList(),
                                         access = memberInfo.Access(),
+                                        //foreignkey = "FK_" + @class.table + "_" + memberInfo.Name + "_to_" + correspondingCollection.Name,
                                     };
                 UniqueAttribute.SetUniqueProperties(memberInfo, manyToOne);
 
