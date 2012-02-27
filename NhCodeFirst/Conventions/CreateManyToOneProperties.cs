@@ -6,7 +6,7 @@ using DependencySort;
 using NHibernate.Mapping;
 using urn.nhibernate.mapping.Item2.Item2;
 
-namespace NhCodeFirst.NhCodeFirst.Conventions
+namespace NhCodeFirst.Conventions
 {
     public class CreateManyToOneProperties : IClassConvention, IRunAfter<CreateNonCompositeIdentity>, IRunAfter<AddVersion>
     {

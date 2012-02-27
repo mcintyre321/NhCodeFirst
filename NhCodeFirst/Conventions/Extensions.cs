@@ -2,11 +2,9 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using NHibernate.Dialect;
-using NHibernate.Type;
 using urn.nhibernate.mapping.Item2.Item2;
 
-namespace NhCodeFirst.NhCodeFirst.Conventions
+namespace NhCodeFirst.Conventions
 {
     public class SqlDialect
     {

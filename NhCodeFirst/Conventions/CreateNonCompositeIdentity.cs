@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using System.Xml.Linq;
 using Iesi.Collections.Generic;
 using NHibernate.Dialect;
 using NHibernate.Mapping;
 using urn.nhibernate.mapping.Item2.Item2;
-using Xml.Schema.Linq;
 
-namespace NhCodeFirst.NhCodeFirst.Conventions
+namespace NhCodeFirst.Conventions
 {
     public class CreateNonCompositeIdentity : IClassConvention
     {

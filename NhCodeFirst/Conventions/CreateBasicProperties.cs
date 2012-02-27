@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using DependencySort;
@@ -8,7 +7,7 @@ using NHibernate.Mapping;
 using NHibernate.Type;
 using urn.nhibernate.mapping.Item2.Item2;
 
-namespace NhCodeFirst.NhCodeFirst.Conventions
+namespace NhCodeFirst.Conventions
 {
     public class CreateBasicProperties : IClassConvention, IRunAfter<CreateNonCompositeIdentity>, IRunAfter<AddVersion>
     {

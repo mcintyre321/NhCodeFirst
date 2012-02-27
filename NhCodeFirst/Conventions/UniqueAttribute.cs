@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using urn.nhibernate.mapping.Item2.Item2;
 
-namespace NhCodeFirst.NhCodeFirst.Conventions
+namespace NhCodeFirst.Conventions
 {
     public class UniqueAttribute : Attribute
     {
