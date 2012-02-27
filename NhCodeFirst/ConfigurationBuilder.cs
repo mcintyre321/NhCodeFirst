@@ -5,14 +5,14 @@ using System.Linq;
 using System.Reflection;
 using System.Web.Hosting;
 using DependencySort;
-using NhCodeFirst.NhCodeFirst.Conventions;
 using NHibernate.Cfg;
 using NHibernate.Dialect;
 using NHibernate.Driver;
+using NhCodeFirst.Conventions;
 using urn.nhibernate.mapping.Item2.Item2;
 using Environment = NHibernate.Cfg.Environment;
 
-namespace NhCodeFirst.NhCodeFirst
+namespace NhCodeFirst
 {
     public interface IConfigurationNeedingDialect
     {

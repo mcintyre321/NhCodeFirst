@@ -2,15 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity.Design.PluralizationServices;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Xml.Linq;
-using urn.nhibernate.mapping.Item2.Item2;
-using Xml.Schema.Linq;
 
-namespace NhCodeFirst.NhCodeFirst
+namespace NhCodeFirst
 {
 	public static class Extensions
 {

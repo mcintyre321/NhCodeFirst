@@ -1,7 +1,7 @@
 using System;
 using System.Data.SqlClient;
 
-namespace NhCodeFirst.NhCodeFirst
+namespace NhCodeFirst
 {
     public class DatabaseInitializer
     {

@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Reflection;
 using NHibernate;
-using NHibernate.Linq;
 using NHibernate.Tool.hbm2ddl;
 using Configuration = NHibernate.Cfg.Configuration;
 
-namespace NhCodeFirst.NhCodeFirst
+namespace NhCodeFirst
 {
     //This class is similar to the EF DbContext - you don't have to use it to
     //use the ConfigurationBuilder and conventions but it should help some
