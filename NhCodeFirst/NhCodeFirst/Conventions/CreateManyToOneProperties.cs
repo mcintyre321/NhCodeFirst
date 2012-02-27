@@ -65,10 +65,8 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                                           key = new key()
                                                     {
                                                         column = manyToOne.column.Copy(),
-                                                        foreignkey = "FK_" + @class.table + "_" + memberInfo.Name + "_to_" + memberInfo.ReturnType().Name.Sanitise(),
+                                                        foreignkey = "FK_" + @class.table + "_" + manyToOne.column.Single().name + "_to_" + memberInfo.ReturnType().Name.Sanitise(),
                                                         notnull = !memberInfo.Nullable(),
-                                                        
-                                                        
                                                     },
                                           inverse = false,
                                           onetomany = new onetomany() {@class = type.AssemblyQualifiedName},
