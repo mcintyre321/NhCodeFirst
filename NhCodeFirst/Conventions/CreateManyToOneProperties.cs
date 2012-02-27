@@ -70,7 +70,7 @@ namespace NhCodeFirst.Conventions
                                                         foreignkey = "FK_" + @class.table.Trim('[', ']') + "_" + string.Join("_", manyToOne.column.Select(c => c.name.Trim("[]".ToCharArray()))) + "_to_" + memberInfo.ReturnType().ClassElement(hbm).table,
                                                         notnull = !memberInfo.IsNullable(),
                                                     },
-                                          inverse = false,
+                                          inverse = true,
                                           onetomany = new onetomany() {@class = type.AssemblyQualifiedName},
                                           cascade = "all",
                                           
