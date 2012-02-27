@@ -25,7 +25,7 @@ namespace NhCodeFirst.Conventions
                                         column = entityClassElement.id.column.Copy()
                                             .Each(c => c.SetName(prefix + c.GetName()))
                                             .Each(c => c.index = null)
-                                            .Each(c => c.notnull = !memberInfo.Nullable()).ToList(),
+                                            .Each(c => c.notnull = !memberInfo.IsNullable()).ToList(),
                                         access = memberInfo.Access(),
                                     };
                 manyToOne.foreignkey = "FK_" + @class.table.Trim('[', ']') + "_" +
@@ -68,7 +68,7 @@ namespace NhCodeFirst.Conventions
                                                     {
                                                         column = manyToOne.column.Copy(),
                                                         foreignkey = "FK_" + @class.table.Trim('[', ']') + "_" + string.Join("_", manyToOne.column.Select(c => c.name.Trim("[]".ToCharArray()))) + "_to_" + memberInfo.ReturnType().ClassElement(hbm).table,
-                                                        notnull = !memberInfo.Nullable(),
+                                                        notnull = !memberInfo.IsNullable(),
                                                     },
                                           inverse = false,
                                           onetomany = new onetomany() {@class = type.AssemblyQualifiedName},

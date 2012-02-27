@@ -36,7 +36,7 @@ namespace NhCodeFirst.Conventions
             if (memberInfo.IsReadOnlyProperty()) return null;
             if (memberInfo.DeclaringType.GetSettableFieldsAndProperties().Any(memberInfo.IsBackingFieldFor)) return null;
 
-            notNull = notNull ?? (mi => !mi.Nullable());
+            notNull = notNull ?? (mi => !mi.IsNullable());
             var returnType = memberInfo.ReturnType();
             var userType = Type.GetType(returnType.FullName + "UserType" + ", " + returnType.Assembly.FullName);
 

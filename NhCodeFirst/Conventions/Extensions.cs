@@ -56,17 +56,6 @@ namespace NhCodeFirst.Conventions
             return access;
         }
 
-       
-
-        public static bool Nullable(this MemberInfo memberInfo)
-        {
-            foreach (var nullableRule in NullableRules)
-            {
-                var result = nullableRule(memberInfo);
-                if (result.HasValue) return result.Value;
-            }
-            return true;
-        }
 
         public static bool HasAttribute<T>(this MemberInfo mi)
         {
