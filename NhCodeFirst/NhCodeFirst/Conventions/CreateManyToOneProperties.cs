@@ -54,7 +54,6 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                 if (potentialCorrespondingCollections.Count() == 1)
                 {
                     var correspondingCollection = potentialCorrespondingCollections.Single();
-                    var otherClassMap = memberInfo.ReturnType().ClassElement(hbm);
 
                     if (setTypes.MakeGenericTypes(type).Any(t => t.IsAssignableFrom(correspondingCollection.ReturnType())))
                     {
@@ -66,7 +65,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                                           key = new key()
                                                     {
                                                         column = manyToOne.column.Copy(),
-                                                        foreignkey = "FK_" + @class.table + "_" + memberInfo.Name + "_to_" + correspondingCollection.Name,
+                                                        foreignkey = "FK_" + @class.table + "_" + memberInfo.Name + "_to_" + memberInfo.ReturnType().Name.Sanitise(),
                                                         notnull = !memberInfo.Nullable(),
                                                         
                                                         
@@ -76,6 +75,8 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                                           cascade = "all",
                                           
                                       };
+                    var otherClassMap = memberInfo.ReturnType().ClassElement(hbm);
+
                         otherClassMap.set.Add(set);
                         
                     }
