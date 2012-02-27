@@ -67,7 +67,7 @@ namespace NhCodeFirst.Conventions
                                           access = correspondingCollection.Access(),
                                           key = new key()
                                                     {
-                                                        column = manyToOne.column.Copy(),
+                                                        column1 = manyToOne.column.Single().name,
                                                         foreignkey = "FK_" + @class.table.Trim('[', ']') + "_" + string.Join("_", manyToOne.column.Select(c => c.name.Trim("[]".ToCharArray()))) + "_to_" + memberInfo.ReturnType().ClassElement(hbm).table,
                                                         notnull = false// so inverse works!memberInfo.IsNullable(),
                                                     },
@@ -76,8 +76,7 @@ namespace NhCodeFirst.Conventions
                                           cascade = "all",
 
                                       };
-                        manyToOne.column.Each(c => c.notnull = true).ToArray();
-
+                        manyToOne.column.Each(c => c.notnull = false).ToArray();
                         var otherClassMap = memberInfo.ReturnType().ClassElement(hbm);
 
                         otherClassMap.set.Add(set);
