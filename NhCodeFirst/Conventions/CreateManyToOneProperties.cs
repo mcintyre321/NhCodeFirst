@@ -10,10 +10,10 @@ namespace NhCodeFirst.Conventions
 {
     public class CreateManyToOneProperties : IClassConvention, IRunAfter<CreateNonCompositeIdentity>, IRunAfter<AddVersion>
     {
-        private IEnumerable<Type> setTypes = new[] {typeof (ISet<>), typeof (Iesi.Collections.Generic.ISet<>)};
+        private IEnumerable<Type> setTypes = new[] { typeof(ISet<>), typeof(Iesi.Collections.Generic.ISet<>) };
 
         public void Apply(Type type, @class @class, IEnumerable<Type> entityTypes, hibernatemapping hbm)
-        {            
+        {
             var entityMembersOnType = type.GetFieldsAndProperties().Where(p => entityTypes.Contains(p.ReturnType())).ToArray();
             foreach (var memberInfo in entityMembersOnType)
             {
@@ -27,6 +27,7 @@ namespace NhCodeFirst.Conventions
                                             .Each(c => c.index = null)
                                             .Each(c => c.notnull = !memberInfo.IsNullable()).ToList(),
                                         access = memberInfo.Access(),
+                                        
                                     };
                 manyToOne.foreignkey = "FK_" + @class.table.Trim('[', ']') + "_" +
                                        string.Join("_", manyToOne.column.Select(c => c.name.Trim("[]".ToCharArray()))) +
@@ -38,13 +39,13 @@ namespace NhCodeFirst.Conventions
 
                 //if there is a manytoone, there is probably a set on the other object...
                 var potentialCorrespondingCollections = memberInfo.ReturnType().GetAllMembers()
-                        //... so we get the collections on the other type
+                    //... so we get the collections on the other type
                     .Where(p => setTypes.MakeGenericTypes(type).Any(t => t.IsAssignableFrom(p.ReturnType())));
-                
-                
+
+
                 if (potentialCorrespondingCollections.Count() > 1)
                 {
-                    var att =memberInfo.GetCustomAttributes(typeof (ManyToOneHintAttribute), false).SingleOrDefault() as ManyToOneHintAttribute;
+                    var att = memberInfo.GetCustomAttributes(typeof(ManyToOneHintAttribute), false).SingleOrDefault() as ManyToOneHintAttribute;
                     if (att != null)
                     {
                         potentialCorrespondingCollections =
@@ -68,17 +69,19 @@ namespace NhCodeFirst.Conventions
                                                     {
                                                         column = manyToOne.column.Copy(),
                                                         foreignkey = "FK_" + @class.table.Trim('[', ']') + "_" + string.Join("_", manyToOne.column.Select(c => c.name.Trim("[]".ToCharArray()))) + "_to_" + memberInfo.ReturnType().ClassElement(hbm).table,
-                                                        notnull = !memberInfo.IsNullable(),
+                                                        notnull = false// so inverse works!memberInfo.IsNullable(),
                                                     },
                                           inverse = true,
-                                          onetomany = new onetomany() {@class = type.AssemblyQualifiedName},
+                                          onetomany = new onetomany() { @class = type.AssemblyQualifiedName },
                                           cascade = "all",
-                                          
+
                                       };
-                    var otherClassMap = memberInfo.ReturnType().ClassElement(hbm);
+                        manyToOne.column.Each(c => c.notnull = true).ToArray();
+
+                        var otherClassMap = memberInfo.ReturnType().ClassElement(hbm);
 
                         otherClassMap.set.Add(set);
-                        
+
                     }
                 }
             }
@@ -99,7 +102,7 @@ namespace NhCodeFirst.Conventions
             yield break;
         }
     }
-    class ManyToOneHintAttribute:Attribute
+    class ManyToOneHintAttribute : Attribute
     {
         public string CorrespondingCollectionName { get; private set; }
 
