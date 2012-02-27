@@ -27,8 +27,10 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                                             .Each(c => c.index = null)
                                             .Each(c => c.notnull = !memberInfo.Nullable()).ToList(),
                                         access = memberInfo.Access(),
-                                        foreignkey = "FK_" + @class.table + "_" + memberInfo.Name.Sanitise() + "_to_" + memberInfo.ReturnType().Name.Sanitise(),
                                     };
+                manyToOne.foreignkey = "FK_" + @class.table.Trim('[', ']') + "_" +
+                                       string.Join("_", manyToOne.column.Select(c => c.name.Trim("[]".ToCharArray()))) +
+                                       "_to_" + memberInfo.ReturnType().Name.Sanitise();
                 UniqueAttribute.SetUniqueProperties(memberInfo, manyToOne);
 
                 @class.manytoone.Add(manyToOne);
@@ -65,7 +67,7 @@ namespace NhCodeFirst.NhCodeFirst.Conventions
                                           key = new key()
                                                     {
                                                         column = manyToOne.column.Copy(),
-                                                        foreignkey = "FK_" + @class.table + "_" + manyToOne.column.Single().name + "_to_" + memberInfo.ReturnType().Name.Sanitise(),
+                                                        foreignkey = "FK_" + @class.table.Trim('[', ']') + "_" + string.Join("_", manyToOne.column.Select(c => c.name.Trim("[]".ToCharArray()))) + "_to_" + memberInfo.ReturnType().ClassElement(hbm).table,
                                                         notnull = !memberInfo.Nullable(),
                                                     },
                                           inverse = false,
