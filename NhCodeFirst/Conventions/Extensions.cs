@@ -84,7 +84,7 @@ namespace NhCodeFirst.Conventions
             return theType.IsClass || theType.IsInterface || theType.IsNullableValueType();
         }
 
-        public static Type GetTypeOrNonNullableType(this Type type)
+        public static Type GetTypeOrUnderlyingType(this Type type)
         {
             return IsNullableValueType(type) ? type.GetGenericArguments()[0] : type;
         }

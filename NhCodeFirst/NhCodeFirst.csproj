@@ -72,6 +72,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuxDbExtensions.cs" />
+    <Compile Include="Conventions\Registry.cs" />
+    <Compile Include="NhCodeFirst\BaseImmutableUserType.cs" />
     <Compile Include="Conventions\ColumnExtensions.cs" />
     <Compile Include="Conventions\NullabilityRules.cs" />
     <Compile Include="Conventions\UniqueAttribute.cs" />
@@ -85,6 +87,7 @@
     <Compile Include="Conventions\Extensions.cs" />
     <Compile Include="Conventions\IClassConvention.cs" />
     <Compile Include="DbContext.cs" />
+    <Compile Include="NhCodeFirst\SerializedUserType.cs" />
     <Compile Include="nhibernate-mapping.cs" />
     <Compile Include="ReflectionExtensions.cs" />
     <Compile Include="Profiler.cs" />
@@ -96,7 +99,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="NhCodeFirst\" />
+    <Folder Include="UserTypes\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -5,13 +5,26 @@ using System.Reflection;
 using DependencySort;
 using NHibernate.Mapping;
 using NHibernate.Type;
+using NhCodeFirst.NhCodeFirst;
 using urn.nhibernate.mapping.Item2.Item2;
 
 namespace NhCodeFirst.Conventions
 {
+    public class DontMapAttribute
+    {
+        static DontMapAttribute()
+        {
+            CreateBasicProperties.GetTypeForPropertyRules.Insert(mi => mi.TryGetAttribute<DontMapAttribute>() != null ? typeof(void) : null);
+        }
+    }
     public class CreateBasicProperties : IClassConvention, IRunAfter<CreateNonCompositeIdentity>, IRunAfter<AddVersion>
     {
-        public static readonly IList<Type> BasicTypes = new[] { typeof(Guid), typeof(int), typeof(string), typeof(bool), typeof(DateTime), typeof(DateTimeOffset), typeof(Byte[]), typeof(Double), }.ToList().AsReadOnly();
+        public static Registry<GetTypeForProperty> GetTypeForPropertyRules = new Registry<GetTypeForProperty>();
+        static CreateBasicProperties()
+        {
+            GetTypeForPropertyRules.Insert(mi => BasicTypes.Any(t => t == mi.ReturnType().GetTypeOrUnderlyingType()) ? mi.ReturnType() : null);
+        }
+        public static readonly IList<Type> BasicTypes = new[] { typeof(Guid), typeof(int), typeof(long), typeof(string), typeof(bool), typeof(DateTime), typeof(DateTimeOffset), typeof(Byte[]), typeof(Double), }.ToList().AsReadOnly();
 
         public void Apply(Type type, @class @class, IEnumerable<Type> entityTypes, hibernatemapping hbm)
         {
@@ -31,6 +44,10 @@ namespace NhCodeFirst.Conventions
             return GetProperty(memberInfo);
         }
 
+        //decide which type to use for the property mapping. Return typeof(void) if the rule should prevent the property from mapping at all
+        public delegate Type GetTypeForProperty(MemberInfo mi);
+
+    
         internal static property GetProperty(MemberInfo memberInfo, string prefix = "", Func<MemberInfo, bool> notNull = null)
         {
             if (memberInfo.IsReadOnlyProperty()) return null;
@@ -38,11 +55,8 @@ namespace NhCodeFirst.Conventions
 
             notNull = notNull ?? (mi => !mi.IsNullable());
             var returnType = memberInfo.ReturnType();
-            var userType = Type.GetType(returnType.FullName + "UserType" + ", " + returnType.Assembly.FullName);
-
-            var typeOrNonNullableType = returnType.GetTypeOrNonNullableType();
-            if (!BasicTypes.Any(t => typeOrNonNullableType == t) && !returnType.IsEnum && userType == null)
-                return null;
+            var type = GetTypeForPropertyRules.Rules.Select(r => r(memberInfo)).FirstOrDefault(t => t != null);
+            if (type == null || type == typeof(void)) return null; //not for mapping, this one
 
             var property = new property()
                                {
@@ -51,12 +65,9 @@ namespace NhCodeFirst.Conventions
                                    notnull = notNull(memberInfo),
                                };
             property.column.Add(new column().Setup(memberInfo, columnPrefix: prefix, notnull: property.notnull));
-                                   
-            if (userType != null)
-            {
-                property.type1 = userType.AssemblyQualifiedName;
-            }
 
+            property.type1 = type.AssemblyQualifiedName;
+            
             UniqueAttribute.SetUniqueProperties(memberInfo, property);
 
             //this if statement could be happily replaced by some nifty lookup table or something
