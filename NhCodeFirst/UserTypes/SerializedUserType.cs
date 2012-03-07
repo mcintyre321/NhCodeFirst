@@ -10,20 +10,25 @@ namespace NhCodeFirst.UserTypes
     {
        
     }
+    public class SerializedUserType
+    {
+        public static Func<string, Type, object> Deserialize = (s, t) => Convert.ChangeType(s, t);
+        public static Func<object, string> Serialize = o => o.ToString();
+    }
+
+
     public class SerializedUserType<T> : BaseImmutableUserType<T>
     {
-        public static Func<string, object> Deserialize = s => Convert.ChangeType(s, typeof (T));
-        public static Func<object, string> Serialize = o => o.ToString();
 
         public override object NullSafeGet(IDataReader rs, string[] names, object owner)
         {
-            var amount = Deserialize(NHibernateUtil.String.NullSafeGet(rs, names[0]) as string);
+            var amount = SerializedUserType.Deserialize(NHibernateUtil.String.NullSafeGet(rs, names[0]) as string, typeof(T));
             return amount;
         }
 
         public override void NullSafeSet(IDbCommand cmd, object value, int index)
         {
-            object valueToSet = Serialize(value);
+            object valueToSet = SerializedUserType.Serialize(value);
             NHibernateUtil.String.NullSafeSet(cmd, valueToSet, index);
         }
 
