@@ -5,17 +5,13 @@ using System.Reflection;
 using DependencySort;
 using NHibernate.Mapping;
 using NHibernate.Type;
-using NhCodeFirst.NhCodeFirst;
+using NhCodeFirst.UserTypes;
 using urn.nhibernate.mapping.Item2.Item2;
 
 namespace NhCodeFirst.Conventions
 {
     public class DontMapAttribute
     {
-        static DontMapAttribute()
-        {
-            CreateBasicProperties.GetTypeForPropertyRules.Insert(mi => mi.TryGetAttribute<DontMapAttribute>() != null ? typeof(void) : null);
-        }
     }
     public class CreateBasicProperties : IClassConvention, IRunAfter<CreateNonCompositeIdentity>, IRunAfter<AddVersion>
     {
@@ -23,6 +19,8 @@ namespace NhCodeFirst.Conventions
         static CreateBasicProperties()
         {
             GetTypeForPropertyRules.Insert(mi => BasicTypes.Any(t => t == mi.ReturnType().GetTypeOrUnderlyingType()) ? mi.ReturnType() : null);
+            GetTypeForPropertyRules.Insert(mi => mi.TryGetAttribute<DontMapAttribute>() != null ? typeof(void) : null);
+            GetTypeForPropertyRules.Insert(mi => mi.TryGetAttribute<SerializedUserTypeAttribute>() != null ? typeof(SerializedUserType<>).MakeGenericType(mi.ReturnType()) : null);
         }
         public static readonly IList<Type> BasicTypes = new[] { typeof(Guid), typeof(int), typeof(long), typeof(string), typeof(bool), typeof(DateTime), typeof(DateTimeOffset), typeof(Byte[]), typeof(Double), }.ToList().AsReadOnly();
 

@@ -3,7 +3,7 @@ using System.Data;
 using NHibernate.SqlTypes;
 using NHibernate.UserTypes;
 
-namespace NhCodeFirst.NhCodeFirst
+namespace NhCodeFirst.UserTypes
 {
     public abstract class BaseImmutableUserType<T> : IUserType
     {

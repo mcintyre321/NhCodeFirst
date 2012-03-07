@@ -4,14 +4,11 @@ using NHibernate;
 using NHibernate.SqlTypes;
 using NhCodeFirst.Conventions;
 
-namespace NhCodeFirst.NhCodeFirst
+namespace NhCodeFirst.UserTypes
 {
     public class SerializedUserTypeAttribute : Attribute
     {
-        static SerializedUserTypeAttribute()
-        {
-            CreateBasicProperties.GetTypeForPropertyRules.Insert(mi => mi.TryGetAttribute<SerializedUserTypeAttribute>() != null ? typeof(SerializedUserType<>).MakeGenericType(mi.ReturnType()) : null);
-        }
+       
     }
     public class SerializedUserType<T> : BaseImmutableUserType<T>
     {
