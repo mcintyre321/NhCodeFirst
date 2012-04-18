@@ -82,6 +82,14 @@ namespace NhCodeFirst.Conventions
                 property.type1 =
                     typeof (EnumStringType<>).MakeGenericType(returnType).AssemblyQualifiedName;
             }
+            // check nullable enum
+            if (returnType.IsGenericType &&
+               returnType.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+               returnType.GetGenericArguments()[0].IsEnum)
+            {
+                property.type1 = 
+                    typeof (EnumStringType<>).MakeGenericType(returnType.GetGenericArguments()[0]).AssemblyQualifiedName;
+            }
             return property;
         }
 
