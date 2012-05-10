@@ -22,7 +22,7 @@ namespace NhCodeFirst
 
     public interface IConfigurationNeedingEntities
     {
-        Configuration MapEntities(IEnumerable<Type> rootEntityTypes, MatchEntities matchEntities = null);
+        Configuration MapEntities(IEnumerable<Type> rootEntityTypes, MatchEntities matchEntities = null, Action<hibernatemapping> applyCustomMappings = null);
         IConfigurationNeedingEntities With(Action<Configuration> transform);
     }
 
@@ -148,7 +148,8 @@ namespace NhCodeFirst
             }
         }
 
-        public Configuration MapEntities(IEnumerable<Type> rootEntityTypes, MatchEntities matchEntities = null)
+        public Configuration MapEntities(IEnumerable<Type> rootEntityTypes, MatchEntities matchEntities = null,
+            Action<hibernatemapping> applyCustomMappings = null)
         {
 
             var entityTypes = GetEntityTypes(rootEntityTypes, matchEntities);
@@ -184,8 +185,14 @@ namespace NhCodeFirst
                         }
                     }
                 }
-
+            
             }
+
+            if (applyCustomMappings != null)
+            {
+                applyCustomMappings(mappingXDoc);
+            }
+
             var xml = mappingXDoc.ToString();
             if (_writeToDisk)
             {
